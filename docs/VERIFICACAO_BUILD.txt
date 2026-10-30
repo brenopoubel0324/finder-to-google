@@ -1,0 +1,16 @@
+Verificação final — Finder to Google 1.0.0
+
+Comando: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest --continue --console=plain --stacktrace
+Resultado: BUILD SUCCESSFUL in 1m 54s
+81 actionable tasks: 16 executed, 65 up-to-date
+
+JUnit/Robolectric: 38 testes; 0 falhas; 0 erros; 0 ignorados.
+Android Lint: 0 erros; 17 avisos.
+Verificações estruturais offline: 5 testes aprovados.
+APK debug e APK de testes instrumentados: gerados.
+Testes instrumentados em aparelho/emulador: não executados.
+Samsung One UI / toque no Finder: pendente de validação real.
+
+apksigner verify: sucesso; assinatura v2; RSA 2048; certificado Android Debug.
+aapt2: pacote br.com.findertogoogle; versão 1.0.0; minSdk 29; targetSdk 36.
+SHA-256: 0fafbffd722462347daca7a5550444bd80b838c56a3e0115b2e400cf11984085

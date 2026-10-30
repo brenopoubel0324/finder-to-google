@@ -1,0 +1,37 @@
+Verificações da etapa inicial, antes da liberação da rede (29/10/2026).
+Registro histórico. O APK foi gerado posteriormente; consulte ESTADO_DA_ENTREGA.md.
+
+Comando: python3 scripts/check_project.py
+
+test_exported_browser_filter_has_both_schemes_without_host ... ok
+test_kotlin_resource_references_exist ... ok
+test_manifest_has_no_permissions_or_resident_components ... ok
+test_queries_remain_scoped ... ok
+test_xml_is_well_formed_and_local_resources_exist ... ok
+Ran 5 tests in 0.009s
+OK
+Código de saída: 0
+
+Comando: sh -n gradlew
+Sem erro de sintaxe; código de saída: 0.
+
+Comando:
+java com.sun.tools.javac.Main -source 17 -target 17 \
+  -d /tmp/finder-bootstrap-check gradle/wrapper/Bootstrap.java
+
+warning: [options] system modules path not set in conjunction with -source 17
+1 warning
+Código de saída: 0. Compila somente o bootstrap, não o app Android.
+O runtime inclui módulo de compilador, mas não a base de APIs de --release 17.
+Por isso se verificou sintaxe/bytecode 17 sobre o JDK 21 disponível.
+
+Comando: ./gradlew testDebugUnitTest assembleDebug
+
+Obtendo Gradle Wrapper oficial 8.13 (43 KB), com verificação SHA-256…
+Não foi possível preparar o Gradle Wrapper: IOException
+É necessário acesso HTTPS a raw.githubusercontent.com. Consulte o README para instalação offline.
+Código de saída: 1.
+
+Gradle não iniciou; tarefas Android/JUnit não foram executadas.
+APK não gerado. Testes instrumentados e One UI não executados.
+As verificações offline acima não substituem compilação Kotlin, Lint ou execução no dispositivo.

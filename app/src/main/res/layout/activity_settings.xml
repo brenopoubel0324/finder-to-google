@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/app_name" android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:accessibilityHeading="true" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/subtitle" android:textAppearance="?attr/textAppearanceBodyLarge" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp">
+            <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="20dp" android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:accessibilityLiveRegion="polite" />
+        </com.google.android.material.card.MaterialCardView>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/browser_title" android:textAppearance="?attr/textAppearanceTitleLarge" android:accessibilityHeading="true" />
+        <TextView android:id="@+id/selected_browser" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/choose_browser"
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/choose_browser" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/activate"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/activate" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/tests_title" android:textAppearance="?attr/textAppearanceTitleLarge" android:accessibilityHeading="true" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/test_search"
+            style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/test_search" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/test_search_description" android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/test_link"
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/test_link" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/restore"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/restore" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/advanced_title" android:textAppearance="?attr/textAppearanceTitleLarge" android:accessibilityHeading="true" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:text="@string/origin_warning" android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/experimental"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+            android:text="@string/experimental_title" android:layout_marginTop="8dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/experimental_description" android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/diagnostics"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+            android:text="@string/diagnostics_title" android:layout_marginTop="16dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/diagnostics_description" android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <TextView android:id="@+id/diagnostic_report" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:textAppearance="?attr/textAppearanceBodyMedium" android:textIsSelectable="true" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/clear_diagnostics"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/clear_diagnostics" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/privacy_note" android:textAppearance="?attr/textAppearanceBodySmall" />
+    </LinearLayout>
+</ScrollView>

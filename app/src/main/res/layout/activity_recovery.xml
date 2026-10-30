@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/recovery_title" android:textAppearance="?attr/textAppearanceHeadlineMedium" android:accessibilityHeading="true" />
+        <TextView android:id="@+id/recovery_message" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:textAppearance="?attr/textAppearanceBodyLarge" android:accessibilityLiveRegion="polite" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/choose_browser"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/choose_browser" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/retry"
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/retry" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/app_settings"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/app_settings" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/close"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/close" />
+    </LinearLayout>
+</ScrollView>
