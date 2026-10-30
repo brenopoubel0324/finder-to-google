@@ -12,14 +12,15 @@ import br.com.findertogoogle.data.AppPreferences
 import br.com.findertogoogle.routing.*
 import com.google.android.material.button.MaterialButton
 
-/** launchMode padrão: cada abertura tem sua própria identidade, sem reutilizar chamador anterior. */
+/** launchMode padrão: cada abertura mantém sua própria identidade e recuperação. */
 class LinkRouterActivity : AppCompatActivity() {
     private lateinit var prefs: AppPreferences
     private lateinit var browser: BrowserForwarder
     private lateinit var origin: LinkOrigin
     private var originalUri: Uri? = null
     private var decision = RoutingDecision.INVALID_LINK
-    private var googleFailed = false
+    private var googleFailure: SearchFailure? = null
+    private var recoveryReason: BrowserFailure? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,26 +28,52 @@ class LinkRouterActivity : AppCompatActivity() {
         prefs = AppPreferences(this)
         browser = BrowserForwarder(packageName, prefs, AndroidBrowserCatalog(this), ActivityStarter { startActivity(it) })
         origin = LinkOriginResolver.resolve(this)
-        val report = try {
-            originalUri = intent.data
-            LinkRouter(SearchLauncher(this), browser).route(intent.action, originalUri, origin, prefs.experimentalFinderDetection)
-        } catch (_: RuntimeException) {
-            RouteReport(RoutingDecision.INVALID_LINK, RouteOutcome.InvalidInput)
+        originalUri = try { intent.data } catch (_: RuntimeException) { null }
+        if (savedInstanceState?.getBoolean("router.recovering") == true) {
+            decision = savedInstanceState.getString("router.decision").enumOrNull<RoutingDecision>() ?: RoutingDecision.INVALID_LINK
+            googleFailure = savedInstanceState.getString("router.google_failure").enumOrNull<SearchFailure>()
+            origin = LinkOrigin(
+                savedInstanceState.getString("router.origin_kind").enumOrNull<OriginKind>() ?: OriginKind.UNKNOWN,
+                LinkOriginResolver.safePackage(savedInstanceState.getString("router.origin_package")),
+                savedInstanceState.getString("router.evidence").enumOrNull<IdentityEvidence>() ?: IdentityEvidence.NONE,
+                LinkOriginResolver.safePackage(savedInstanceState.getString("router.hint")),
+            )
+            val valid = intent.action == Intent.ACTION_VIEW && GoogleSearchUrlParser.isWebUri(originalUri)
+            showRecovery(if (valid) savedInstanceState.getString("router.reason").enumOrNull<BrowserFailure>()
+                ?: BrowserFailure.LAUNCH_FAILED else BrowserFailure.INVALID_LINK)
+            return
         }
+        val report = try {
+            LinkRouter(SearchLauncher(this), browser).route(intent.action, originalUri, origin, prefs.experimentalFinderDetection)
+        } catch (_: RuntimeException) { RouteReport(RoutingDecision.INVALID_LINK, RouteOutcome.InvalidInput) }
         decision = report.decision
         record(report)
         when (val outcome = report.outcome) {
             RouteOutcome.GoogleOpened -> finish()
             is RouteOutcome.BrowserOpened -> {
-                if (outcome.googleFailed) Toast.makeText(this, R.string.google_failed, Toast.LENGTH_LONG).show()
+                if (outcome.googleFailure != null) Toast.makeText(this, R.string.google_failed, Toast.LENGTH_LONG).show()
                 finish()
             }
             is RouteOutcome.Recovery -> {
-                googleFailed = outcome.googleFailed
+                googleFailure = outcome.googleFailure
                 showRecovery(outcome.reason)
             }
             RouteOutcome.InvalidInput -> showRecovery(BrowserFailure.INVALID_LINK)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (recoveryReason == null) return
+        outState.putBoolean("router.recovering", true)
+        outState.putString("router.reason", recoveryReason?.name)
+        outState.putString("router.decision", decision.name)
+        outState.putString("router.google_failure", googleFailure?.name)
+        outState.putString("router.origin_kind", origin.kind.name)
+        outState.putString("router.origin_package", origin.packageName)
+        outState.putString("router.evidence", origin.evidence.name)
+        outState.putString("router.hint", origin.referrerHint)
+        // A URI permanece apenas no Intent já recebido, sem nova cópia no estado salvo.
     }
 
     private fun record(report: RouteReport) {
@@ -54,17 +81,13 @@ class LinkRouterActivity : AppCompatActivity() {
     }
 
     private fun showRecovery(reason: BrowserFailure) {
+        recoveryReason = reason
         setContentView(R.layout.activity_recovery)
         applySystemInsets()
-        val message = getString(when (reason) {
-            BrowserFailure.NOT_CONFIGURED -> R.string.recovery_not_configured
-            BrowserFailure.NO_LONGER_AVAILABLE -> R.string.recovery_missing
-            BrowserFailure.LAUNCH_FAILED -> R.string.recovery_failed
-            BrowserFailure.INVALID_LINK -> R.string.invalid_link
-        })
-        findViewById<TextView>(R.id.recovery_message).text = if (googleFailed) {
-            getString(R.string.google_failed) + "\n\n" + message
-        } else message
+        val detail = getString(reason.messageRes())
+        findViewById<TextView>(R.id.recovery_message).text = googleFailure?.let {
+            getString(it.messageRes()) + "\n\n" + detail
+        } ?: detail
         findViewById<MaterialButton>(R.id.choose_browser).apply {
             visibility = if (reason == BrowserFailure.INVALID_LINK) View.GONE else View.VISIBLE
             setOnClickListener { showBrowserPicker(browser) { retryBrowser() } }
@@ -73,20 +96,24 @@ class LinkRouterActivity : AppCompatActivity() {
             visibility = if (reason == BrowserFailure.INVALID_LINK) View.GONE else View.VISIBLE
             setOnClickListener { retryBrowser() }
         }
-        findViewById<MaterialButton>(R.id.app_settings).setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
+        findViewById<MaterialButton>(R.id.app_settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         findViewById<MaterialButton>(R.id.close).setOnClickListener { finish() }
     }
 
     private fun retryBrowser() {
         val uri = originalUri ?: return
-        when (val result = browser.open(uri)) {
+        when (val result = browser.retry(uri)) {
             BrowserResult.Opened -> {
-                record(RouteReport(decision, RouteOutcome.BrowserOpened(googleFailed)))
+                record(RouteReport(decision, RouteOutcome.BrowserOpened(googleFailure)))
                 finish()
             }
-            is BrowserResult.NeedsRecovery -> showRecovery(result.reason)
+            is BrowserResult.NeedsRecovery -> {
+                record(RouteReport(decision, RouteOutcome.Recovery(result.reason, googleFailure)))
+                showRecovery(result.reason)
+            }
         }
+    }
+    private inline fun <reified T : Enum<T>> String?.enumOrNull(): T? = this?.let {
+        try { enumValueOf<T>(it) } catch (_: IllegalArgumentException) { null }
     }
 }

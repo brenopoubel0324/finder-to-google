@@ -8,6 +8,9 @@ local.properties
 *.keystore
 keystore.properties
 signing.local.properties
+signing-private.json
+signing-private.properties
+finder-private-signing/
 .env
 .env.*
 !.env.example

@@ -22,7 +22,7 @@ class RoutingPolicyTest {
         assertEquals(RoutingDecision.GOOGLE_EXPERIMENTAL, decide(OriginKind.UNKNOWN, true))
         assertEquals(RoutingDecision.GOOGLE_FINDER, decide(OriginKind.FINDER, true))
         assertEquals(RoutingDecision.BROWSER_OTHER_APP, decide(OriginKind.OTHER, true))
-        assertEquals(RoutingDecision.BROWSER_UNKNOWN_ORIGIN, RoutingPolicy.decide(
+        assertEquals(RoutingDecision.BROWSER_UNKNOWN_SIGNATURE, RoutingPolicy.decide(
             Uri.parse("https://google.com/search?q=teste"), LinkOrigin(OriginKind.UNKNOWN), true,
         ))
     }
@@ -60,6 +60,14 @@ class RoutingPolicyTest {
         val origin = LinkOriginResolver.fromEvidence("nao e um pacote", null, "https://google.com/search?q=segredo")
         assertNull(origin.packageName)
         assertNull(origin.referrerHint)
+    }
+
+    @Test fun `captura real do tablet nao autentica launcher mas permite assinatura opt in`() {
+        val observed = LinkOriginResolver.fromEvidence(null, null, "com.sec.android.app.launcher")
+        assertEquals(RoutingDecision.GOOGLE_EXPERIMENTAL, RoutingPolicy.decide(search, observed, true))
+        assertEquals(RoutingDecision.BROWSER_UNKNOWN_ORIGIN, RoutingPolicy.decide(search, observed, false))
+        assertEquals(RoutingDecision.BROWSER_UNKNOWN_SIGNATURE, RoutingPolicy.decide(
+            Uri.parse("https://google.com/search?q=teste&client=outro"), observed, true))
     }
 
     private fun decide(kind: OriginKind, experimental: Boolean) = RoutingPolicy.decide(search, LinkOrigin(kind), experimental)

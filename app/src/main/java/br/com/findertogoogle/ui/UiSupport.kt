@@ -33,10 +33,10 @@ fun AppCompatActivity.showBrowserPicker(forwarder: BrowserForwarder, onSelected:
         dialog.setMessage(R.string.no_browsers).setPositiveButton(android.R.string.ok, null).show()
         return
     }
-    val current = forwarder.selectedTarget()?.component
+    val current = forwarder.selectedTarget()?.packageName
     dialog.setSingleChoiceItems(
-        browsers.map { "${it.label}\n${it.component.packageName}" }.toTypedArray(),
-        browsers.indexOfFirst { it.component == current },
+        browsers.map { "${it.label}\n${it.packageName}" }.toTypedArray(),
+        browsers.indexOfFirst { it.packageName == current },
     ) { picker, index ->
         if (forwarder.select(browsers[index])) {
             picker.dismiss()

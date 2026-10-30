@@ -16,15 +16,15 @@ import org.robolectric.annotation.Config
 @Config(sdk = [36])
 class LinkRouterIntegrationTest {
     private val real = BrowserTarget(ComponentName("org.vivaldi.browser", "org.vivaldi.browser.Main"), "Vivaldi")
-    private val selection = MemorySelection().apply { selectedBrowser = real.component }
+    private val selection = MemorySelection().apply { selectBrowser(real.component) }
     private val intents = mutableListOf<Intent>()
     private var googleFailure: RuntimeException? = null
-    private var browsers = listOf(real)
+    private val catalog = TestBrowsers(listOf(real))
     private val starter = ActivityStarter {
         intents += it
         if (it.action == Intent.ACTION_WEB_SEARCH) googleFailure?.let { failure -> throw failure }
     }
-    private val browser = BrowserForwarder("br.com.findertogoogle", selection, BrowserCatalog { browsers }, starter)
+    private val browser = BrowserForwarder("br.com.findertogoogle", selection, catalog, starter, ForwardingGuard { 0L })
     private val router = LinkRouter(SearchLauncher(starter), browser)
     private val finder = LinkOrigin(OriginKind.FINDER)
 
@@ -41,7 +41,7 @@ class LinkRouterIntegrationTest {
     @Test fun `Google ausente preserva URL original no fallback`() {
         googleFailure = ActivityNotFoundException()
         val url = "https://www.google.com/search?hl=pt&q=ol%C3%A1%20mundo&x=%2526#abc"
-        assertEquals(RouteOutcome.BrowserOpened(true), route(url).outcome)
+        assertEquals(RouteOutcome.BrowserOpened(SearchFailure.UNAVAILABLE), route(url).outcome)
         assertEquals(2, intents.size)
         assertEquals(url, intents.last().dataString)
         assertEquals(real.component, intents.last().component)
@@ -49,7 +49,7 @@ class LinkRouterIntegrationTest {
 
     @Test fun `Google bloqueado tambem usa fallback`() {
         googleFailure = SecurityException()
-        assertEquals(RouteOutcome.BrowserOpened(true), route("https://google.com/search?q=x").outcome)
+        assertEquals(RouteOutcome.BrowserOpened(SearchFailure.ACCESS_DENIED), route("https://google.com/search?q=x").outcome)
         assertEquals(real.component, intents.last().component)
     }
 
@@ -59,7 +59,7 @@ class LinkRouterIntegrationTest {
             "https://google.com/search?q=" + "x".repeat(4097),
         ).forEach { url ->
             intents.clear()
-            assertEquals(RouteOutcome.BrowserOpened(false), route(url).outcome)
+            assertEquals(RouteOutcome.BrowserOpened(), route(url).outcome)
             assertEquals(real.component, intents.single().component)
             assertEquals(url, intents.single().dataString)
         }
@@ -68,13 +68,13 @@ class LinkRouterIntegrationTest {
     @Test fun `outro app nao pesquisa mesmo com assinatura e experimental`() {
         val url = "https://google.com/search?q=teste&client=tablet-android-samsung-rvo1"
         val report = router.route(Intent.ACTION_VIEW, Uri.parse(url), LinkOrigin(OriginKind.OTHER), true)
-        assertEquals(RouteOutcome.BrowserOpened(false), report.outcome)
+        assertEquals(RouteOutcome.BrowserOpened(), report.outcome)
         assertEquals(real.component, intents.single().component)
     }
 
     @Test fun `origem desconhecida exige opt in para assinatura`() {
         val url = Uri.parse("https://google.com/search?q=teste&client=tablet-android-samsung-rvo1")
-        assertEquals(RouteOutcome.BrowserOpened(false), router.route(Intent.ACTION_VIEW, url, LinkOrigin(OriginKind.UNKNOWN), false).outcome)
+        assertEquals(RouteOutcome.BrowserOpened(), router.route(Intent.ACTION_VIEW, url, LinkOrigin(OriginKind.UNKNOWN), false).outcome)
         intents.clear()
         assertEquals(RouteOutcome.GoogleOpened, router.route(Intent.ACTION_VIEW, url, LinkOrigin(OriginKind.UNKNOWN), true).outcome)
         assertEquals(Intent.ACTION_WEB_SEARCH, intents.single().action)
@@ -82,9 +82,9 @@ class LinkRouterIntegrationTest {
 
     @Test fun `sem nenhum destino mostra recuperacao`() {
         googleFailure = ActivityNotFoundException()
-        browsers = emptyList()
+        catalog.targets = emptyList()
         val report = route("https://google.com/search?q=teste")
-        assertEquals(RouteOutcome.Recovery(BrowserFailure.NO_LONGER_AVAILABLE, true), report.outcome)
+        assertEquals(RouteOutcome.Recovery(BrowserFailure.NO_LONGER_AVAILABLE, SearchFailure.UNAVAILABLE), report.outcome)
         assertEquals(1, intents.size)
     }
 

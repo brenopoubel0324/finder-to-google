@@ -2,7 +2,7 @@
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
-**APK debug gerado e assinatura verificada.** O SDK Android 16 e as ferramentas foram instalados após liberar o acesso à rede. O artefato entregue é `Finder-to-Google-debug.apk` (versão 1.0.0). Veja [o registro de validação](docs/ESTADO_DA_ENTREGA.md) para os resultados dos testes. A integração com o Finder em Samsung físico ainda precisa de validação.
+**Candidato 1.1.0-rc.1 implementado.** Inclui interface reorganizada, migração de preferências, catálogo por pacote, proteção contra reentrada, diagnóstico copiável e regras de backup explícitas. Há atualização debug compatível com a instalação anterior e um release otimizado com chave definitiva nova. **O caso do S25/Android 17 ainda aguarda confirmação da URL real e validação no aparelho; este candidato não é declarado versão final.** Consulte [o estado de execução](docs/EXECUCAO_PLANO_0001.md).
 
 ## Regra de roteamento desta versão
 
@@ -47,7 +47,7 @@ sdkmanager --licenses
 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-O APK debug, **quando a compilação tiver sucesso**, estará em `app/build/outputs/apk/debug/app-debug.apk`, assinado automaticamente com a chave debug local. Relatórios: `app/build/reports/tests/testDebugUnitTest/index.html` e `app/build/reports/lint-results-debug.html`. Uma versão release para distribuição exige sua própria assinatura; não há chave privada de produção no projeto.
+O APK debug fica em `app/build/outputs/apk/debug/app-debug.apk`, assinado automaticamente com a chave debug local. Relatórios: `app/build/reports/tests/testDebugUnitTest/index.html` e `app/build/reports/lint-results-debug.html`. Uma versão release para distribuição exige sua própria assinatura; não há chave privada de produção no projeto.
 
 ### Primeiro uso do Gradle Wrapper / offline
 
@@ -69,7 +69,7 @@ Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e bu
 
 ## Instalar e configurar
 
-1. Baixe e abra o APK entregue no aparelho. Para instalar uma compilação local via ADB:
+1. Para preservar as configurações atuais, use a **atualização debug**, assinada com o mesmo certificado da versão 1.0.0, e instale por cima. O **release** usa a chave definitiva nova: Android rejeita atualização direta sobre o debug; a reinstalação exige configurar novamente. Não há desinstalação automática. Para instalar uma compilação local via ADB:
 
    ```sh
    adb install -r app/build/outputs/apk/debug/app-debug.apk
@@ -79,8 +79,8 @@ Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e bu
 2. Abra **Finder to Google** e toque em **Escolher navegador**. Selecione Vivaldi, Samsung Internet, Chrome ou outro navegador compatível. Essa escolha pode ser trocada depois, sem alterar o navegador padrão do Android.
 3. Use **Testar link comum** e **Testar pesquisa no Google App** para verificar os dois destinos.
 4. Toque em **Ativar interceptação**, leia o efeito e confirme no diálogo do Android. Só o usuário concede o papel; a tela consulta `RoleManager.isRoleHeld()` para mostrar o estado real, inclusive após cancelamento ou mudança nas configurações.
-5. Abra o Finder e toque em uma sugestão de **Pesquisas da web sugeridas**. Se for para o navegador, ligue **Diagnóstico local**, repita e consulte a origem informada.
-6. Se a origem for desconhecida e o aparelho usar a assinatura confirmada no handoff, você pode ligar **Reconhecer URL do Finder (experimental)** e repetir o teste. Isso amplia a regra para URLs semelhantes de origem desconhecida.
+5. Abra o Finder e toque em uma sugestão de **Pesquisas da web sugeridas**. Se for para o navegador, abra **Diagnóstico e opções avançadas**, ligue **Diagnóstico local**, repita e consulte a origem informada.
+6. Se a origem for desconhecida e o aparelho usar a assinatura confirmada no handoff, você pode ligar **Compatibilidade com Finder (Samsung)** e repetir o teste. Isso amplia a regra para URLs semelhantes de origem desconhecida.
 
 Ao tornar este app navegador padrão, **outros links também passam por ele** e são encaminhados explicitamente ao navegador escolhido. App Links verificados e intents direcionadas a outro pacote podem seguir diretamente ao destino definido pelo sistema, sem passar pelo roteador. O app não controla `google.com`, não declara App Links verificados e não altera essa configuração.
 
@@ -100,7 +100,28 @@ Somente esquemas HTTP/HTTPS são aceitos. Apenas os hosts exatos, sem diferencia
 
 O termo usa **`Uri.getQueryParameter("q")` uma única vez**; mantém acentos, emoji, espaços e `+` codificado. Parâmetro ausente, vazio, somente espaços ou com mais de 4.096 unidades UTF-16 segue no navegador. Em parâmetros `q` duplicados, vale o primeiro, exatamente como na API Android. Não há decodificação adicional. URLs encaminhadas usam o `Uri` original, inclusive parâmetros e fragmento, sem reconstrução.
 
-Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics, anúncios, logs de pesquisa ou permissões sensíveis. Não há solicitação de permissões em tempo de execução. O diagnóstico fica **desligado por padrão** e, quando ativado, guarda apenas um último registro de metadados: origem/identidade disponível, pista de referrer e decisão/resultado. Não guarda histórico, URL, termo nem texto de exceções. Desligar a opção ou tocar em **Apagar diagnóstico** apaga o registro. A URL de recuperação permanece apenas na Activity/intent recebida; não é salva nas preferências.
+Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics, anúncios, logs de pesquisa ou permissões sensíveis. Não há solicitação de permissões em tempo de execução. O diagnóstico fica **desligado por padrão** e, quando ativado, guarda apenas um último registro de metadados: origem/identidade disponível, pista de referrer e decisão/resultado. Não guarda histórico, URL, termo nem texto de exceções. Desligar a opção ou tocar em **Apagar diagnóstico** apaga o registro. A URL de recuperação permanece apenas na Activity/intent recebida; não é salva nas preferências nem copiada novamente ao estado salvo. O botão Copiar diagnóstico exige ação explícita, e a cópia é marcada como sensível no Android 13+.
+
+
+## Release e atualização
+
+A versão debug e a release usam o mesmo applicationId e versionCode 2, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
+
+Para compilar release, configure as quatro variáveis descritas em `.env.example`: `FINDER_RELEASE_KEYSTORE`, `FINDER_RELEASE_KEY_ALIAS`, `FINDER_RELEASE_STORE_PASSWORD` e `FINDER_RELEASE_KEY_PASSWORD`. Use armazenamento local privado ou um gerenciador de segredos; não coloque senhas em comandos de build, commits ou relatórios. Debug e testes não dependem dessas variáveis. `verifyReleaseSigning` impede preparar release sem elas.
+
+```sh
+./gradlew lintRelease assembleRelease
+"$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
+apkanalyzer manifest debuggable app/build/outputs/apk/release/app-release.apk
+```
+
+O último comando deve informar `false`. Preserve certificado e aumente versionCode em cada nova entrega. Para retornar a código estável, faça um novo build com o mesmo certificado e código maior; não prometa instalar um APK antigo por cima.
+
+## Compatibilidade observada
+
+O usuário confirmou funcionamento em um **tablet**, com origem desconhecida e assinatura `tablet-android-samsung-rvo1`. Depois informou **Samsung S25, Android 17, One UI 9**, onde a captura mostra encaminhamento ao Samsung Browser. Essa captura confirma que o link chegou ao roteador; não confirma a assinatura da URL recebida pelo celular. O novo diagnóstico separa modo desligado de assinatura desconhecida. É necessário obter a URL de uma pesquisa fictícia por `teste`, ou apenas o parâmetro `client`, antes de acrescentar outra assinatura exata. Não generalizamos para qualquer URL Samsung nem confiamos no referrer do launcher.
+
+O target SDK continua 36 e não significa instalação restrita ao Android 16. A execução no Android 17 não foi certificada por este build. A validação final depende do S25 real e do APK candidato exato.
 
 ## Testes e estrutura
 

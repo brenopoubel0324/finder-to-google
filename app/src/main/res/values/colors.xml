@@ -3,4 +3,5 @@
     <color name="brand_primary">#315DA8</color>
     <color name="brand_on_primary">#FFFFFF</color>
     <bool name="light_system_bars">true</bool>
+    <color name="icon_background">#315DA8</color>
 </resources>

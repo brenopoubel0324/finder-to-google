@@ -44,7 +44,7 @@ class DeviceContractTest {
     }
 
     @Test fun catalogoNuncaIncluiRoteador() {
-        assertTrue(AndroidBrowserCatalog(context).installedBrowsers().none { it.component.packageName == context.packageName })
+        assertTrue(AndroidBrowserCatalog(context).installedBrowsers().none { it.packageName == context.packageName })
     }
 
     @Test fun telaExibeEstadoRealDoSistema() {

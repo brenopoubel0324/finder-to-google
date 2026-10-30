@@ -1,6 +1,6 @@
-# Validação no Android 16 / Samsung One UI
+# Validação no Samsung — Android 16/17 e One UI
 
-**Estado desta entrega: pendente em dispositivo.** O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
+**Estado do candidato 1.1.0-rc.1: pendente no Samsung físico.** O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
 
 ## Preparação
 
@@ -17,7 +17,7 @@
 1. Abra o Samsung Finder, digite `teste`, toque em uma sugestão de **Pesquisas da web sugeridas**.
 2. Se o Android compartilhar o pacote `com.samsung.android.app.galaxyfinder`, deve abrir resultados nativos no Google.
 3. Consulte o diagnóstico. Se a origem for desconhecida, abrir o navegador é o comportamento esperado no modo padrão, mesmo que o referrer cite o Finder.
-4. Nesse caso, ligue **Reconhecer URL do Finder (experimental)**, retorne ao Finder e repita o toque. Uma busca Google com `client=tablet-android-samsung-rvo1` deve abrir no Google. Outra assinatura de firmware não é reconhecida automaticamente.
+4. Nesse caso, ligue **Compatibilidade com Finder (Samsung)**, retorne ao Finder e repita o toque. Uma busca Google com `client=tablet-android-samsung-rvo1` deve abrir no Google. Outra assinatura de firmware não é reconhecida automaticamente.
 5. Desligue o modo experimental e confirme que a origem desconhecida volta ao navegador.
 6. Repita após encerrar as telas do roteador e do Finder e após reiniciar o aparelho; não há serviço para iniciar.
 
@@ -79,3 +79,17 @@ Para testar a regra **outro app reconhecido** de ponta a ponta, um app de teste 
 | Restaurar navegador anterior nas configurações do Android | Status do APK passa a Inativo; os links voltam ao fluxo escolhido no sistema |
 
 Reabilite os aplicativos após os testes. App Links verificados, links forçados diretamente a outro pacote, perfis de trabalho e políticas de administrador podem impedir que o link chegue ao roteador. Registre isso separadamente de falhas no encaminhamento.
+
+
+## Registro do candidato e encerramento
+
+| Dispositivo/artefato | Evidência atual |
+|---|---|
+| Tablet, APK debug original 1.0.0 | Usuário confirmou abertura no Google com compatibilidade ligada; modelo/versões não confirmados |
+| S25, Android 17, One UI 9 (informados pelo usuário), debug original | Captura mostra link recebido e encaminhado ao Samsung Browser; URL real ainda não obtida |
+| 1.1.0-rc.1 debug, versionCode 2 | Atualização com mesmo certificado compilada; validação física pendente |
+| 1.1.0-rc.1 release, versionCode 2 | Nova chave, R8 ativo e assinatura verificada; validação física pendente |
+
+Antes de marcar final, registrar o SHA-256 do APK release testado conforme `EXECUCAO_PLANO_0001.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
+
+Na atualização debug, registrar navegador e modo antes/depois; compatibilidade já ligada deve permanecer ligada. Para release com chave nova, a reinstalação única exige refazer configuração. Em futuras atualizações release, manter a mesma chave e aumentar versionCode; não desinstalar automaticamente nem assumir migração entre certificados diferentes. Validar também cancelamento da concessão de papel, remoção do papel e retorno às configurações.

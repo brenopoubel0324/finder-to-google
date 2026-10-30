@@ -18,10 +18,10 @@ class ProjectContractTest(unittest.TestCase):
             root = ET.parse(path).getroot()
             if root.tag == "resources":
                 resources.update((child.tag, child.attrib["name"]) for child in root if "name" in child.attrib)
-            elif path.parent.name in {"layout", "drawable"}:
-                resources.add((path.parent.name, path.stem))
+            elif path.parent.name.split("-")[0] in {"layout", "drawable", "xml", "mipmap"}:
+                resources.add((path.parent.name.split("-")[0], path.stem))
         for path in xml_files:
-            for kind, name in re.findall(r'@(string|color|bool|layout|drawable|style)/([A-Za-z0-9_.]+)', path.read_text()):
+            for kind, name in re.findall(r'@(string|color|bool|layout|drawable|style|xml|mipmap|dimen)/([A-Za-z0-9_.]+)', path.read_text()):
                 if kind == "style" and name.startswith("Widget.Material3."):
                     continue  # recurso da dependência Material
                 self.assertIn((kind, name), resources, f"{path}: @{kind}/{name}")
@@ -50,6 +50,16 @@ class ProjectContractTest(unittest.TestCase):
         self.assertEqual({"http", "https"}, {d.attrib[A + "scheme"] for d in intent_filter.findall("data")})
         self.assertFalse(any(A + "host" in d.attrib for d in intent_filter.findall("data")))
 
+    def test_backup_and_transfer_are_explicitly_excluded(self):
+        app = ET.parse(MAIN / "AndroidManifest.xml").getroot().find("application")
+        self.assertEqual("@xml/backup_rules", app.attrib[A + "fullBackupContent"])
+        self.assertEqual("@xml/data_extraction_rules", app.attrib[A + "dataExtractionRules"])
+        full = ET.parse(MAIN / "res/xml/backup_rules.xml").getroot()
+        modern = ET.parse(MAIN / "res/xml/data_extraction_rules.xml").getroot()
+        expected = {"root", "file", "database", "sharedpref", "external", "device_root", "device_file", "device_database", "device_sharedpref"}
+        for rules in [full, modern.find("cloud-backup"), modern.find("device-transfer")]:
+            self.assertEqual(expected, {e.attrib["domain"] for e in rules.findall("exclude") if e.attrib["path"] == "."})
+
     def test_queries_remain_scoped(self):
         queries = ET.parse(MAIN / "AndroidManifest.xml").getroot().find("queries")
         self.assertEqual(["com.google.android.googlequicksearchbox"], [p.attrib[A + "name"] for p in queries.findall("package")])
@@ -62,12 +72,12 @@ class ProjectContractTest(unittest.TestCase):
             root = ET.parse(path).getroot()
             if root.tag == "resources":
                 resources.update((c.tag, c.attrib["name"].replace(".", "_")) for c in root if "name" in c.attrib)
-            elif path.parent.name == "layout":
+            elif path.parent.name.split("-")[0] == "layout":
                 resources.add(("layout", path.stem))
             ids.update(re.findall(r"@\+id/(\w+)", path.read_text()))
         resources.update(("id", name) for name in ids)
         for path in (ROOT / "app/src").rglob("*.kt"):
-            for kind, name in re.findall(r"(?<!android\.)\bR\.(id|string|layout|style)\.(\w+)", path.read_text()):
+            for kind, name in re.findall(r"(?<!android\.)\bR\.(id|string|layout|style|dimen)\.(\w+)", path.read_text()):
                 self.assertIn((kind, name), resources, f"{path}: R.{kind}.{name}")
 
 

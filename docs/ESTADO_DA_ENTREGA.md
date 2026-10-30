@@ -1,3 +1,9 @@
+# Estado atual
+
+O projeto está no candidato **1.1.0-rc.1**. Consulte [a execução do plano](EXECUCAO_PLANO_0001.md) e [a validação do candidato](VALIDACAO_CANDIDATO.md).
+
+O histórico abaixo descreve a entrega inicial 1.0.0 e não substitui as pendências atuais do S25/Android 17.
+
 # Estado verificável da entrega
 
 **APK debug gerado, assinado e verificado.** Atualizado em 29/10/2026 (horário de São Paulo).

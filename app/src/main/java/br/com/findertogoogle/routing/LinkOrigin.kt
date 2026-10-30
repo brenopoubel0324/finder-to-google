@@ -45,7 +45,7 @@ object LinkOriginResolver {
         )
     }
 
-    private fun safePackage(value: String?): String? = value?.takeIf {
+    internal fun safePackage(value: String?): String? = value?.takeIf {
         it.length <= 200 && packagePattern.matches(it)
     }
 }

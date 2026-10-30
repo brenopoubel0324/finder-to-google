@@ -1,7 +1,14 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+val releaseKeystore = providers.environmentVariable("FINDER_RELEASE_KEYSTORE").orNull
+val releaseAlias = providers.environmentVariable("FINDER_RELEASE_KEY_ALIAS").orNull
+val releaseStorePassword = providers.environmentVariable("FINDER_RELEASE_STORE_PASSWORD").orNull
+val releaseKeyPassword = providers.environmentVariable("FINDER_RELEASE_KEY_PASSWORD").orNull
 
 android {
     namespace = "br.com.findertogoogle"
@@ -10,13 +17,25 @@ android {
         applicationId = "br.com.findertogoogle"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0-rc.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    buildFeatures { buildConfig = true }
+    signingConfigs {
+        create("release") {
+            storeFile = releaseKeystore?.let { file(it) }
+            keyAlias = releaseAlias
+            storePassword = releaseStorePassword
+            keyPassword = releaseKeyPassword
+        }
+    }
     buildTypes {
+        debug { versionNameSuffix = "-debug" }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -24,9 +43,22 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
     testOptions { unitTests.isIncludeAndroidResources = true }
 }
+
+kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
+
+// A tarefa nativa de assinatura pode nem existir se a configuração estiver incompleta.
+// Esta verificação é sempre registrada e protege o release antes do empacotamento.
+val verifyReleaseSigning by tasks.registering {
+    doLast {
+        check(listOf(releaseKeystore, releaseAlias, releaseStorePassword, releaseKeyPassword).all { !it.isNullOrBlank() }) {
+            "Assinatura release ausente. Configure as quatro variáveis FINDER_RELEASE_* fora do repositório."
+        }
+        check(file(requireNotNull(releaseKeystore)).isFile) { "O keystore release configurado não está disponível." }
+    }
+}
+tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(verifyReleaseSigning) }
 
 dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
