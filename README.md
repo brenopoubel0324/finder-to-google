@@ -2,7 +2,7 @@
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
-**Candidato 1.1.0-rc.1 implementado.** Inclui interface reorganizada, migração de preferências, catálogo por pacote, proteção contra reentrada, diagnóstico copiável e regras de backup explícitas. Há atualização debug compatível com a instalação anterior e um release otimizado com chave definitiva nova. **O caso do S25/Android 17 ainda aguarda confirmação da URL real e validação no aparelho; este candidato não é declarado versão final.** Consulte [o estado de execução](docs/EXECUCAO_PLANO_0001.md).
+**Candidato 1.1.0-rc.2 implementado.** Acrescenta a assinatura exata da URL enviada pelo usuário no S25, mantendo a do tablet. Inclui as melhorias anteriores de interface, migração, recuperação, diagnóstico e privacidade. A atualização debug preserva certificado e preferências; o release usa a chave definitiva já criada. **A regra do S25 foi corrigida e testada automaticamente; a confirmação de abertura no Google no aparelho ainda é necessária.** Consulte [a correção e validação desta versão](docs/CANDIDATO_1.1.0-rc.2.md).
 
 ## Regra de roteamento desta versão
 
@@ -13,7 +13,9 @@ Esta implementação inclui as regras de origem solicitadas após o handoff. Iss
 | Samsung Finder reconhecido pelo sistema | Google App via `ACTION_WEB_SEARCH` | Navegador selecionado |
 | Outro aplicativo reconhecido pelo sistema | Navegador selecionado | Navegador selecionado |
 | Desconhecida, opção experimental desligada (padrão) | Navegador selecionado | Navegador selecionado |
-| Desconhecida, opção experimental ligada | Google somente se `client=tablet-android-samsung-rvo1`; demais buscas no navegador | Navegador selecionado |
+| Desconhecida, opção experimental ligada | Google somente com uma das duas assinaturas exatas confirmadas abaixo; demais buscas no navegador | Navegador selecionado |
+
+Assinaturas exatas do parâmetro `client`: `tablet-android-samsung-rvo1` (tablet) e `ms-android-samsung-a1-terr1-rvo1aqb` (S25, URL enviada pelo usuário). Não há reconhecimento por prefixo Samsung, substring ou referrer.
 
 O pacote Finder reconhecido é `com.samsung.android.app.galaxyfinder`. `Activity.getLaunchedFromPackage()` (API 34+) e `callingPackage`, quando disponíveis, fornecem identidade do sistema. O Android frequentemente não a compartilha em aberturas comuns. `getReferrer()` é apenas uma pista visível no diagnóstico; extras do chamador podem falsificá-la. Não há promessa de identificação universal da origem.
 
@@ -105,7 +107,7 @@ Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics,
 
 ## Release e atualização
 
-A versão debug e a release usam o mesmo applicationId e versionCode 2, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
+A versão debug e a release usam o mesmo applicationId e versionCode 3, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
 
 Para compilar release, configure as quatro variáveis descritas em `.env.example`: `FINDER_RELEASE_KEYSTORE`, `FINDER_RELEASE_KEY_ALIAS`, `FINDER_RELEASE_STORE_PASSWORD` e `FINDER_RELEASE_KEY_PASSWORD`. Use armazenamento local privado ou um gerenciador de segredos; não coloque senhas em comandos de build, commits ou relatórios. Debug e testes não dependem dessas variáveis. `verifyReleaseSigning` impede preparar release sem elas.
 
@@ -119,7 +121,7 @@ O último comando deve informar `false`. Preserve certificado e aumente versionC
 
 ## Compatibilidade observada
 
-O usuário confirmou funcionamento em um **tablet**, com origem desconhecida e assinatura `tablet-android-samsung-rvo1`. Depois informou **Samsung S25, Android 17, One UI 9**, onde a captura mostra encaminhamento ao Samsung Browser. Essa captura confirma que o link chegou ao roteador; não confirma a assinatura da URL recebida pelo celular. O novo diagnóstico separa modo desligado de assinatura desconhecida. É necessário obter a URL de uma pesquisa fictícia por `teste`, ou apenas o parâmetro `client`, antes de acrescentar outra assinatura exata. Não generalizamos para qualquer URL Samsung nem confiamos no referrer do launcher.
+O usuário confirmou funcionamento em um **tablet**, com origem desconhecida e assinatura `tablet-android-samsung-rvo1`. Depois informou **Samsung S25, Android 17, One UI 9**, onde a captura da rc.1 mostra assinatura desconhecida e encaminhamento ao Samsung Browser. O usuário então enviou a URL de teste com `client=ms-android-samsung-a1-terr1-rvo1aqb`. A rc.2 reconhece essa assinatura exata, com regressão automatizada de política, encaminhamento WEB_SEARCH e fallback. O diagnóstico continua sem guardar URL/termo. Não generalizamos para qualquer URL Samsung nem confiamos no referrer do launcher. Falta confirmar o resultado no aparelho após atualizar.
 
 O target SDK continua 36 e não significa instalação restrita ao Android 16. A execução no Android 17 não foi certificada por este build. A validação final depende do S25 real e do APK candidato exato.
 

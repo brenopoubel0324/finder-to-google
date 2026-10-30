@@ -76,6 +76,27 @@ class GoogleSearchUrlParserTest {
         }
     }
 
+    @Test fun `reconhece assinatura exata da URL enviada pelo S25`() {
+        val url = "https://www.google.com/search?client=ms-android-samsung-a1-terr1-rvo1aqb&hl=pt&q=teste"
+        assertEquals("teste", parse(url))
+        assertTrue(signature(url))
+    }
+
+    @Test fun `assinatura do S25 nao permite variantes nem dispensa busca valida`() {
+        val client = "ms-android-samsung-a1-terr1-rvo1aqb"
+        listOf(
+            "https://google.com/search?q=teste&client=${client}extra",
+            "https://google.com/search?q=teste&client=extra$client",
+            "https://google.com/search?q=teste&client=MS-ANDROID-SAMSUNG-A1-TERR1-RVO1AQB",
+            "https://google.com/search?q=teste&client=ms-android-samsung",
+            "https://google.com/search?q=teste&client=outro&client=$client",
+            "https://google.com.evil.test/search?q=teste&client=$client",
+            "https://google.com/maps?q=teste&client=$client",
+            "https://google.com/search?q=+++&client=$client",
+            "https://user@google.com/search?q=teste&client=$client",
+        ).forEach { assertFalse(it, signature(it)) }
+    }
+
     private fun parse(url: String) = GoogleSearchUrlParser.extractQuery(Uri.parse(url))
     private fun signature(url: String) = GoogleSearchUrlParser.hasFinderSignature(Uri.parse(url))
 }

@@ -1,5 +1,7 @@
 # Autoauditoria — plano 0001
 
+> Histórico da rc.1. A URL do S25 foi recebida posteriormente e a regra foi corrigida na rc.2; consulte [o registro atual](CANDIDATO_1.1.0-rc.2.md).
+
 Data: 30/10/2026. Uma rodada formal sobre a implementação candidata 1.1.0-rc.1, comparada à baseline local `5d5c470` e ao plano aprovado 1.1. Revisão própria com o skill `breno-review-audit:self-audit-loop`; não é uma segunda revisão independente.
 
 ## Escopo e resultado

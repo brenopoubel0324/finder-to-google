@@ -1,6 +1,6 @@
 # Validação no Samsung — Android 16/17 e One UI
 
-**Estado do candidato 1.1.0-rc.1: pendente no Samsung físico.** O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
+**Estado do candidato 1.1.0-rc.2: pendente no Samsung físico.** A assinatura da URL do S25 foi recebida e incorporada com testes automatizados. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
 
 ## Preparação
 
@@ -17,7 +17,7 @@
 1. Abra o Samsung Finder, digite `teste`, toque em uma sugestão de **Pesquisas da web sugeridas**.
 2. Se o Android compartilhar o pacote `com.samsung.android.app.galaxyfinder`, deve abrir resultados nativos no Google.
 3. Consulte o diagnóstico. Se a origem for desconhecida, abrir o navegador é o comportamento esperado no modo padrão, mesmo que o referrer cite o Finder.
-4. Nesse caso, ligue **Compatibilidade com Finder (Samsung)**, retorne ao Finder e repita o toque. Uma busca Google com `client=tablet-android-samsung-rvo1` deve abrir no Google. Outra assinatura de firmware não é reconhecida automaticamente.
+4. Nesse caso, ligue **Compatibilidade com Finder (Samsung)**, retorne ao Finder e repita o toque. Uma busca Google com `client=tablet-android-samsung-rvo1` (tablet) ou `client=ms-android-samsung-a1-terr1-rvo1aqb` (S25) deve abrir no Google. Outra assinatura de firmware não é reconhecida automaticamente.
 5. Desligue o modo experimental e confirme que a origem desconhecida volta ao navegador.
 6. Repita após encerrar as telas do roteador e do Finder e após reiniciar o aparelho; não há serviço para iniciar.
 
@@ -30,6 +30,7 @@ Para **Finder reconhecido**, os casos Google válidos abrem busca nativa. Para *
 | URL / situação | Resultado com Finder reconhecido |
 |---|---|
 | `https://www.google.com/search?client=tablet-android-samsung-rvo1&hl=pt&q=teste` | Busca `teste` no Google |
+| `https://www.google.com/search?client=ms-android-samsung-a1-terr1-rvo1aqb&hl=pt&q=teste` | Busca `teste` no Google; com origem desconhecida, exige compatibilidade ligada |
 | `https://google.com/search?q=ol%C3%A1%20mundo` | Busca `olá mundo` |
 | `https://www.google.com/search?q=C%2B%2B+Android` | Busca `C++ Android` |
 | `https://www.google.com.br/search?q=%F0%9F%98%80+%2526` | Busca `😀 %26`, sem segunda decodificação |
@@ -86,10 +87,11 @@ Reabilite os aplicativos após os testes. App Links verificados, links forçados
 | Dispositivo/artefato | Evidência atual |
 |---|---|
 | Tablet, APK debug original 1.0.0 | Usuário confirmou abertura no Google com compatibilidade ligada; modelo/versões não confirmados |
-| S25, Android 17, One UI 9 (informados pelo usuário), debug original | Captura mostra link recebido e encaminhado ao Samsung Browser; URL real ainda não obtida |
+| S25, Android 17, One UI 9 (informados pelo usuário), debug original | Captura anterior mostra link recebido e encaminhado ao Samsung Browser; URL do S25 recebida posteriormente e incorporada na rc.2 |
 | 1.1.0-rc.1 debug, versionCode 2 | Atualização com mesmo certificado compilada; validação física pendente |
 | 1.1.0-rc.1 release, versionCode 2 | Nova chave, R8 ativo e assinatura verificada; validação física pendente |
+| 1.1.0-rc.2 debug/release, versionCode 3 | Nova assinatura exata do S25; instalação e abertura nativa no aparelho a confirmar |
 
-Antes de marcar final, registrar o SHA-256 do APK release testado conforme `EXECUCAO_PLANO_0001.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
+Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.2.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
 
 Na atualização debug, registrar navegador e modo antes/depois; compatibilidade já ligada deve permanecer ligada. Para release com chave nova, a reinstalação única exige refazer configuração. Em futuras atualizações release, manter a mesma chave e aumentar versionCode; não desinstalar automaticamente nem assumir migração entre certificados diferentes. Validar também cancelamento da concessão de papel, remoção do papel e retorno às configurações.

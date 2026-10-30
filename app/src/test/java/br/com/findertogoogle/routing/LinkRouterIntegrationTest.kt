@@ -98,4 +98,28 @@ class LinkRouterIntegrationTest {
     }
 
     private fun route(url: String) = router.route(Intent.ACTION_VIEW, Uri.parse(url), finder, false)
+
+    @Test fun `S25 com identidade desconhecida envia termo ao Google App em compatibilidade`() {
+        val uri = Uri.parse("https://www.google.com/search?client=ms-android-samsung-a1-terr1-rvo1aqb&hl=pt&q=teste")
+        val origin = LinkOriginResolver.fromEvidence(null, null, "com.sec.android.app.launcher")
+        val report = router.route(Intent.ACTION_VIEW, uri, origin, true)
+        assertEquals(RoutingDecision.GOOGLE_EXPERIMENTAL, report.decision)
+        assertEquals(RouteOutcome.GoogleOpened, report.outcome)
+        val intent = intents.single()
+        assertEquals(Intent.ACTION_WEB_SEARCH, intent.action)
+        assertEquals(SearchLauncher.GOOGLE_PACKAGE, intent.`package`)
+        assertEquals("teste", intent.getStringExtra(SearchManager.QUERY))
+        assertNull(intent.data)
+    }
+
+    @Test fun `S25 com Google indisponivel preserva URL completa no navegador escolhido`() {
+        googleFailure = ActivityNotFoundException()
+        val url = "https://www.google.com/search?client=ms-android-samsung-a1-terr1-rvo1aqb&hl=pt&q=teste"
+        val report = router.route(Intent.ACTION_VIEW, Uri.parse(url), LinkOrigin(OriginKind.UNKNOWN), true)
+        assertEquals(RouteOutcome.BrowserOpened(SearchFailure.UNAVAILABLE), report.outcome)
+        assertEquals(2, intents.size)
+        assertEquals(Intent.ACTION_WEB_SEARCH, intents.first().action)
+        assertEquals(url, intents.last().dataString)
+        assertEquals(real.component, intents.last().component)
+    }
 }

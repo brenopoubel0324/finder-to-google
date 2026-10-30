@@ -71,4 +71,13 @@ class RoutingPolicyTest {
     }
 
     private fun decide(kind: OriginKind, experimental: Boolean) = RoutingPolicy.decide(search, LinkOrigin(kind), experimental)
+
+    @Test fun `URL real do S25 respeita opt in e identidade verificavel`() {
+        val url = Uri.parse("https://www.google.com/search?client=ms-android-samsung-a1-terr1-rvo1aqb&hl=pt&q=teste")
+        val observed = LinkOriginResolver.fromEvidence(null, null, "com.sec.android.app.launcher")
+        assertEquals(OriginKind.UNKNOWN, observed.kind)
+        assertEquals(RoutingDecision.GOOGLE_EXPERIMENTAL, RoutingPolicy.decide(url, observed, true))
+        assertEquals(RoutingDecision.BROWSER_UNKNOWN_ORIGIN, RoutingPolicy.decide(url, observed, false))
+        assertEquals(RoutingDecision.BROWSER_OTHER_APP, RoutingPolicy.decide(url, LinkOrigin(OriginKind.OTHER), true))
+    }
 }

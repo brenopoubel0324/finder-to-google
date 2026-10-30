@@ -1,5 +1,7 @@
 # Validação do candidato 1.1.0-rc.1
 
+> Histórico da rc.1. A URL do S25 foi recebida posteriormente e a regra foi corrigida na rc.2; consulte [o registro atual](CANDIDATO_1.1.0-rc.2.md).
+
 Data: 30/10/2026. O estado abaixo refere-se aos APKs identificados em `EXECUCAO_PLANO_0001.md`.
 
 | Verificação | Resultado |

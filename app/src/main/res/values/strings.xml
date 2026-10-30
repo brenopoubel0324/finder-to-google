@@ -28,7 +28,7 @@
     <string name="restore_message">Na próxima tela, escolha Aplicativo de navegador e selecione seu navegador anterior. O Finder to Google não faz essa alteração automaticamente.</string>
     <string name="open_settings">Abrir configurações do sistema</string>
     <string name="experimental_title">Compatibilidade com Finder (Samsung)</string>
-    <string name="experimental_description">A compatibilidade reconhece somente a assinatura client=tablet-android-samsung-rvo1 em uma busca Google válida quando a origem é desconhecida. Outro app pode gerar a mesma URL. Uma origem verificável de outro app sempre usa o navegador.</string>
+    <string name="experimental_description">Reconhece as duas assinaturas de URL confirmadas no tablet Samsung e no S25, em buscas Google válidas de origem desconhecida. Outro app pode gerar a mesma URL. Uma origem verificável de outro app sempre usa o navegador.</string>
     <string name="origin_warning">O Android pode não informar qual aplicativo abriu o link. Sem compatibilidade, uma origem desconhecida usa o navegador. A pista de origem exibida no diagnóstico não comprova quem enviou o link.</string>
     <string name="diagnostics_title">Diagnóstico local</string>
     <string name="diagnostics_description">Opcional e local. Guarda apenas o último resultado e os metadados de origem. Não guarda URL nem pesquisa. Desligar apaga o registro.</string>
