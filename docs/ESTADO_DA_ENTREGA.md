@@ -1,6 +1,6 @@
 # Estado atual
 
-O projeto está no candidato **1.1.0-rc.2**, versionCode 3, com a assinatura exata da URL do S25 acrescentada após evidência enviada pelo usuário. Consulte [a correção e validação atuais](CANDIDATO_1.1.0-rc.2.md). Os relatórios de [execução do plano](EXECUCAO_PLANO_0001.md) e [validação anterior](VALIDACAO_CANDIDATO.md) preservam o histórico da rc.1.
+O projeto está no candidato **1.1.0-rc.3**, versionCode 4, com calibração e gestão de regras locais para aprender novos valores de client sem recompilar. Consulte [a entrega atual](CANDIDATO_1.1.0-rc.3.md), [o escopo](planos/0002-calibracao-local.md) e [a autoauditoria](AUTOAUDITORIA_CALIBRACAO.md). Relatórios rc.1/rc.2 são históricos; nenhum resultado físico dessas versões é atribuído ao candidato atual.
 
 O histórico abaixo descreve a entrega inicial 1.0.0 e não substitui as pendências atuais do S25/Android 17.
 

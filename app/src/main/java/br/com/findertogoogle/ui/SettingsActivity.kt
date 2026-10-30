@@ -1,6 +1,8 @@
 package br.com.findertogoogle.ui
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import br.com.findertogoogle.BuildConfig
 import br.com.findertogoogle.R
 import br.com.findertogoogle.data.AppPreferences
+import br.com.findertogoogle.data.FinderSignatureStore
 import br.com.findertogoogle.routing.*
 import br.com.findertogoogle.system.BrowserRoleHelper
 import com.google.android.material.button.MaterialButton
@@ -21,6 +24,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var prefs: AppPreferences
     private lateinit var browser: BrowserForwarder
     private lateinit var role: BrowserRoleHelper
+    private lateinit var signatures: FinderSignatureStore
     private var advancedExpanded = false
     private val roleRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { refreshStatus() }
 
@@ -30,10 +34,18 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         applySystemInsets()
         prefs = AppPreferences(this)
+        signatures = FinderSignatureStore(this)
         browser = BrowserForwarder(packageName, prefs, AndroidBrowserCatalog(this), ActivityStarter { startActivity(it) })
         role = BrowserRoleHelper(this)
         findViewById<MaterialButton>(R.id.choose_browser).setOnClickListener { showBrowserPicker(browser) { refreshStatus() } }
         findViewById<MaterialButton>(R.id.activate).setOnClickListener { requestBrowserRole() }
+        findViewById<MaterialButton>(R.id.manage_signatures).setOnClickListener {
+            SignatureManager(this, signatures) { refreshStatus() }.show()
+        }
+        findViewById<MaterialButton>(R.id.learn_signature).setOnClickListener { startCalibration() }
+        findViewById<MaterialButton>(R.id.cancel_calibration).setOnClickListener {
+            FinderCalibration.process.cancel(); refreshStatus()
+        }
         findViewById<MaterialButton>(R.id.test_search).setOnClickListener {
             when (val result = SearchLauncher(this).open(getString(R.string.test_query))) {
                 SearchLaunchResult.Launched -> Unit
@@ -101,6 +113,31 @@ class SettingsActivity : AppCompatActivity() {
             if (isChecked != prefs.diagnosticsEnabled) isChecked = prefs.diagnosticsEnabled
         }
         refreshDiagnostic()
+        val rules = signatures.all()
+        findViewById<TextView>(R.id.signatures_status).text = getString(R.string.signatures_count, rules.count { it.enabled }, rules.size)
+        val pending = FinderCalibration.process.current()
+        findViewById<TextView>(R.id.calibration_status).apply {
+            visibility = if (pending == null) View.GONE else View.VISIBLE
+            text = pending?.let { getString(R.string.calibration_waiting, it.phrase) }
+        }
+        findViewById<View>(R.id.cancel_calibration).visibility = if (pending == null) View.GONE else View.VISIBLE
+    }
+
+    private fun startCalibration() {
+        if (!role.isHeld()) {
+            Toast.makeText(this, R.string.calibration_need_role, Toast.LENGTH_LONG).show()
+            return
+        }
+        val phrase = FinderCalibration.newPhrase()
+        MaterialAlertDialogBuilder(this).setTitle(R.string.learn_signature)
+            .setMessage(getString(R.string.calibration_instructions, phrase))
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.calibration_start) { _, _ ->
+                FinderCalibration.process.begin(phrase)
+                getSystemService(ClipboardManager::class.java)?.setPrimaryClip(
+                    ClipData.newPlainText(getString(R.string.calibration_test_label), phrase))
+                refreshStatus()
+            }.show()
     }
 
     private fun refreshDiagnostic() {

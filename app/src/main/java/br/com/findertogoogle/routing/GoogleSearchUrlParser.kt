@@ -5,7 +5,7 @@ import android.net.Uri
 /** Sem I/O ou estado. A decodificação é feita uma única vez pelo próprio Android. */
 object GoogleSearchUrlParser {
     const val MAX_QUERY_LENGTH = 4096
-    private val finderClients = setOf(
+    val defaultFinderClients = setOf(
         "tablet-android-samsung-rvo1",
         "ms-android-samsung-a1-terr1-rvo1aqb",
     )
@@ -27,7 +27,11 @@ object GoogleSearchUrlParser {
         }
     } catch (_: RuntimeException) { null }
 
-    fun hasFinderSignature(uri: Uri): Boolean = try {
-        extractQuery(uri) != null && uri.getQueryParameter("client") in finderClients
+    fun finderClient(uri: Uri): String? = try {
+        if (extractQuery(uri) == null) null else uri.getQueryParameter("client")?.takeIf(FinderClientSignature::isValid)
+    } catch (_: RuntimeException) { null }
+
+    fun hasFinderSignature(uri: Uri, clients: Set<String> = defaultFinderClients): Boolean = try {
+        finderClient(uri)?.let { it in clients } == true
     } catch (_: RuntimeException) { false }
 }

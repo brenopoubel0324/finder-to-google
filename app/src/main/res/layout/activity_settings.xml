@@ -35,6 +35,16 @@
                     android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/experimental_title" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/compatibility_summary"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
+                <TextView android:id="@+id/signatures_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:textAppearance="?attr/textAppearanceBodyMedium" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/learn_signature" style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="3" android:singleLine="false" android:text="@string/learn_signature" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/manage_signatures" style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="3" android:singleLine="false" android:text="@string/signatures_title" />
+                <TextView android:id="@+id/calibration_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:visibility="gone" android:saveEnabled="false" android:textIsSelectable="true" android:textAppearance="?attr/textAppearanceBodyMedium" android:accessibilityLiveRegion="polite" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/cancel_calibration" style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="3" android:singleLine="false" android:visibility="gone" android:text="@string/calibration_cancel" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
                     android:text="@string/activation_step" android:textAppearance="?attr/textAppearanceTitleMedium" android:accessibilityHeading="true" />
                 <com.google.android.material.button.MaterialButton android:maxLines="3" android:singleLine="false" android:id="@+id/activate" android:layout_width="match_parent"

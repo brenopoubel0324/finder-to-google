@@ -1,5 +1,7 @@
 # Candidato 1.1.0-rc.2 — assinatura do Finder no S25
 
+> Histórico da rc.2. A versão atual com calibração local é a [rc.3](CANDIDATO_1.1.0-rc.3.md).
+
 ## Evidência e correção
 
 O usuário enviou a URL de uma pesquisa fictícia por `teste` no Finder do S25:

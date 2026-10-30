@@ -2,7 +2,7 @@
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
-**Candidato 1.1.0-rc.2 implementado.** Acrescenta a assinatura exata da URL enviada pelo usuário no S25, mantendo a do tablet. Inclui as melhorias anteriores de interface, migração, recuperação, diagnóstico e privacidade. A atualização debug preserva certificado e preferências; o release usa a chave definitiva já criada. **A regra do S25 foi corrigida e testada automaticamente; a confirmação de abertura no Google no aparelho ainda é necessária.** Consulte [a correção e validação desta versão](docs/CANDIDATO_1.1.0-rc.2.md).
+**Candidato 1.1.0-rc.3 implementado.** Permite aprender assinaturas pelo Finder e gerenciar regras locais com efeito imediato, sem recompilar para cada valor novo de client. Inclui as melhorias anteriores de interface, migração, recuperação e diagnóstico. A atualização debug preserva certificado e preferências; o release mantém a chave definitiva. **O fluxo foi testado automaticamente; falta a confirmação física no Samsung.** Consulte [a entrega atual](docs/CANDIDATO_1.1.0-rc.3.md).
 
 ## Regra de roteamento desta versão
 
@@ -13,13 +13,13 @@ Esta implementação inclui as regras de origem solicitadas após o handoff. Iss
 | Samsung Finder reconhecido pelo sistema | Google App via `ACTION_WEB_SEARCH` | Navegador selecionado |
 | Outro aplicativo reconhecido pelo sistema | Navegador selecionado | Navegador selecionado |
 | Desconhecida, opção experimental desligada (padrão) | Navegador selecionado | Navegador selecionado |
-| Desconhecida, opção experimental ligada | Google somente com uma das duas assinaturas exatas confirmadas abaixo; demais buscas no navegador | Navegador selecionado |
+| Desconhecida, opção experimental ligada | Google somente com uma assinatura exata ativa na lista local; demais buscas no navegador | Navegador selecionado |
 
-Assinaturas exatas do parâmetro `client`: `tablet-android-samsung-rvo1` (tablet) e `ms-android-samsung-a1-terr1-rvo1aqb` (S25, URL enviada pelo usuário). Não há reconhecimento por prefixo Samsung, substring ou referrer.
+No primeiro uso, a lista inclui `tablet-android-samsung-rvo1` (tablet) e `ms-android-samsung-a1-terr1-rvo1aqb` (S25, URL enviada pelo usuário). É possível adicionar, desativar e excluir assinaturas, inclusive essas duas. Lista vazia continua vazia ao reiniciar. Não há reconhecimento por prefixo Samsung, substring ou referrer.
 
 O pacote Finder reconhecido é `com.samsung.android.app.galaxyfinder`. `Activity.getLaunchedFromPackage()` (API 34+) e `callingPackage`, quando disponíveis, fornecem identidade do sistema. O Android frequentemente não a compartilha em aberturas comuns. `getReferrer()` é apenas uma pista visível no diagnóstico; extras do chamador podem falsificá-la. Não há promessa de identificação universal da origem.
 
-A opção experimental é um reconhecimento de URL, não uma autenticação do Finder. Outro app pode gerar a mesma assinatura. Uma origem conhecida como outro app continua no navegador mesmo com a opção ligada. Se o firmware usar outra assinatura, será necessário verificar e atualizar a regra. O app não aceita um extra externo que force a origem Finder.
+A opção experimental é um reconhecimento de URL, não uma autenticação do Finder. Outro app pode gerar a mesma assinatura. Uma origem conhecida como outro app continua no navegador mesmo com a opção ligada. Se mudar somente o valor de client, use a calibração ou cadastro manual; mudanças estruturais de URL podem exigir atualização do app. O app não aceita um extra externo que force origem, inicie aprendizado ou confirme uma regra.
 
 ## Compilar
 
@@ -86,6 +86,15 @@ Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e bu
 
 Ao tornar este app navegador padrão, **outros links também passam por ele** e são encaminhados explicitamente ao navegador escolhido. App Links verificados e intents direcionadas a outro pacote podem seguir diretamente ao destino definido pelo sistema, sem passar pelo roteador. O app não controla `google.com`, não declara App Links verificados e não altera essa configuração.
 
+### Aprender e gerenciar assinaturas sem recompilar
+
+1. Com a interceptação já ativa, toque em **Aprender URL do Finder** e depois **Copiar teste e iniciar**.
+2. Abra o Finder, cole a frase fictícia gerada e toque na sugestão da web. O desafio deve coincidir exatamente. A sessão vale cinco minutos, somente em memória; se o Android encerrar o processo, inicie novamente.
+3. Confira o valor de client apresentado e toque em **Salvar e ativar compatibilidade**. Só essa confirmação salva a assinatura e liga a opção. A pesquisa segue então a política normal. **Continuar sem salvar** preserva regras/modo.
+4. Em **Gerenciar assinaturas**, adicione somente o valor de client, ative/desative ou exclua. Mudanças valem no próximo link, sem reiniciar ou gerar APK. Salvar pelo cadastro manual não liga a compatibilidade automaticamente.
+
+As regras ficam no arquivo local `finder_rules`, até 32 registros (inclusive desativados), sem URL/pesquisa. Um client tem de 1 a 128 caracteres ASCII: letras, números, ponto, hífen ou sublinhado, começando por letra/número. A comparação é exata e diferencia maiúsculas/minúsculas. Calibração recusa client ausente/inválido/duplicado; outros links não são capturados e outro app com identidade verificável mantém a rota ao navegador. O teste só altera o clipboard após o botão que informa a cópia. Não há serviço, timer ou tarefa residente para esperar o link.
+
 Não requer root, Shizuku, acessibilidade, VPN, ADB após instalação, conta própria ou serviço em segundo plano. O Google App e o navegador fazem suas próprias conexões normalmente; o roteador não pede `INTERNET` nem efetua chamadas de rede.
 
 ## Falhas e restauração
@@ -107,7 +116,7 @@ Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics,
 
 ## Release e atualização
 
-A versão debug e a release usam o mesmo applicationId e versionCode 3, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
+A versão debug e a release usam o mesmo applicationId e versionCode 4, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
 
 Para compilar release, configure as quatro variáveis descritas em `.env.example`: `FINDER_RELEASE_KEYSTORE`, `FINDER_RELEASE_KEY_ALIAS`, `FINDER_RELEASE_STORE_PASSWORD` e `FINDER_RELEASE_KEY_PASSWORD`. Use armazenamento local privado ou um gerenciador de segredos; não coloque senhas em comandos de build, commits ou relatórios. Debug e testes não dependem dessas variáveis. `verifyReleaseSigning` impede preparar release sem elas.
 

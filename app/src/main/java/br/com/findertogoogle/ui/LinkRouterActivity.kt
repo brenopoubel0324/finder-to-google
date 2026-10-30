@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import br.com.findertogoogle.R
 import br.com.findertogoogle.data.AppPreferences
+import br.com.findertogoogle.data.FinderSignatureStore
+import br.com.findertogoogle.data.SignatureSaveResult
 import br.com.findertogoogle.routing.*
 import com.google.android.material.button.MaterialButton
 
@@ -21,6 +23,7 @@ class LinkRouterActivity : AppCompatActivity() {
     private var decision = RoutingDecision.INVALID_LINK
     private var googleFailure: SearchFailure? = null
     private var recoveryReason: BrowserFailure? = null
+    private var calibrationClient: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,22 +32,42 @@ class LinkRouterActivity : AppCompatActivity() {
         browser = BrowserForwarder(packageName, prefs, AndroidBrowserCatalog(this), ActivityStarter { startActivity(it) })
         origin = LinkOriginResolver.resolve(this)
         originalUri = try { intent.data } catch (_: RuntimeException) { null }
-        if (savedInstanceState?.getBoolean("router.recovering") == true) {
-            decision = savedInstanceState.getString("router.decision").enumOrNull<RoutingDecision>() ?: RoutingDecision.INVALID_LINK
-            googleFailure = savedInstanceState.getString("router.google_failure").enumOrNull<SearchFailure>()
+        if (savedInstanceState?.containsKey("router.origin_kind") == true) {
             origin = LinkOrigin(
                 savedInstanceState.getString("router.origin_kind").enumOrNull<OriginKind>() ?: OriginKind.UNKNOWN,
                 LinkOriginResolver.safePackage(savedInstanceState.getString("router.origin_package")),
                 savedInstanceState.getString("router.evidence").enumOrNull<IdentityEvidence>() ?: IdentityEvidence.NONE,
                 LinkOriginResolver.safePackage(savedInstanceState.getString("router.hint")),
             )
+        }
+        if (savedInstanceState?.getBoolean("router.recovering") == true) {
+            decision = savedInstanceState.getString("router.decision").enumOrNull<RoutingDecision>() ?: RoutingDecision.INVALID_LINK
+            googleFailure = savedInstanceState.getString("router.google_failure").enumOrNull<SearchFailure>()
             val valid = intent.action == Intent.ACTION_VIEW && GoogleSearchUrlParser.isWebUri(originalUri)
             showRecovery(if (valid) savedInstanceState.getString("router.reason").enumOrNull<BrowserFailure>()
                 ?: BrowserFailure.LAUNCH_FAILED else BrowserFailure.INVALID_LINK)
             return
         }
+        val restoredClient = savedInstanceState?.getString("router.calibration_client")
+        if (restoredClient != null && FinderClientSignature.isValid(restoredClient) &&
+            intent.action == Intent.ACTION_VIEW && origin.kind != OriginKind.OTHER &&
+            originalUri?.let { GoogleSearchUrlParser.finderClient(it) } == restoredClient) {
+            showCalibration(restoredClient)
+            return
+        }
+        when (val capture = FinderCalibration.process.inspect(intent.action, originalUri, origin)) {
+            is CalibrationCapture.Candidate -> { showCalibration(capture.client); return }
+            CalibrationCapture.Unsupported -> Toast.makeText(this, R.string.calibration_unsupported, Toast.LENGTH_LONG).show()
+            CalibrationCapture.Ignore -> Unit
+        }
+        routeOriginal()
+    }
+
+    private fun routeOriginal() {
+        calibrationClient = null
         val report = try {
-            LinkRouter(SearchLauncher(this), browser).route(intent.action, originalUri, origin, prefs.experimentalFinderDetection)
+            LinkRouter(SearchLauncher(this), browser).route(intent.action, originalUri, origin,
+                prefs.experimentalFinderDetection, FinderSignatureStore(this).enabledClients())
         } catch (_: RuntimeException) { RouteReport(RoutingDecision.INVALID_LINK, RouteOutcome.InvalidInput) }
         decision = report.decision
         record(report)
@@ -64,8 +87,9 @@ class LinkRouterActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (recoveryReason == null) return
-        outState.putBoolean("router.recovering", true)
+        if (recoveryReason == null && calibrationClient == null) return
+        outState.putString("router.calibration_client", calibrationClient)
+        outState.putBoolean("router.recovering", recoveryReason != null)
         outState.putString("router.reason", recoveryReason?.name)
         outState.putString("router.decision", decision.name)
         outState.putString("router.google_failure", googleFailure?.name)
@@ -78,6 +102,22 @@ class LinkRouterActivity : AppCompatActivity() {
 
     private fun record(report: RouteReport) {
         if (prefs.diagnosticsEnabled) prefs.recordDiagnostic(DiagnosticsFormatter.format(this, origin, report))
+    }
+
+    private fun showCalibration(client: String) {
+        calibrationClient = client
+        setContentView(R.layout.activity_calibration)
+        applySystemInsets()
+        findViewById<TextView>(R.id.calibration_client).text = client
+        findViewById<MaterialButton>(R.id.confirm_signature).setOnClickListener {
+            val result = FinderSignatureStore(this).save(client)
+            if (result == SignatureSaveResult.SAVED) {
+                // Confirmação local explícita; Intent/extras nunca ativam compatibilidade.
+                prefs.experimentalFinderDetection = true
+                routeOriginal()
+            } else findViewById<TextView>(R.id.calibration_message).setText(result.messageRes())
+        }
+        findViewById<MaterialButton>(R.id.skip_signature).setOnClickListener { routeOriginal() }
     }
 
     private fun showRecovery(reason: BrowserFailure) {

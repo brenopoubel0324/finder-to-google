@@ -12,9 +12,10 @@ sealed interface RouteOutcome {
 data class RouteReport(val decision: RoutingDecision, val outcome: RouteOutcome)
 
 class LinkRouter(private val search: SearchOpener, private val browser: BrowserForwarder) {
-    fun route(action: String?, uri: Uri?, origin: LinkOrigin, experimental: Boolean): RouteReport {
+    fun route(action: String?, uri: Uri?, origin: LinkOrigin, experimental: Boolean,
+        clients: Set<String> = GoogleSearchUrlParser.defaultFinderClients): RouteReport {
         if (action != Intent.ACTION_VIEW) return RouteReport(RoutingDecision.INVALID_LINK, RouteOutcome.InvalidInput)
-        val decision = RoutingPolicy.decide(uri, origin, experimental)
+        val decision = RoutingPolicy.decide(uri, origin, experimental, clients)
         if (decision == RoutingDecision.INVALID_LINK || uri == null) return RouteReport(decision, RouteOutcome.InvalidInput)
         var failure: SearchFailure? = null
         if (decision.usesGoogle) {

@@ -10,7 +10,8 @@ enum class RoutingDecision {
 }
 
 object RoutingPolicy {
-    fun decide(uri: Uri?, origin: LinkOrigin, experimental: Boolean): RoutingDecision {
+    fun decide(uri: Uri?, origin: LinkOrigin, experimental: Boolean,
+        clients: Set<String> = GoogleSearchUrlParser.defaultFinderClients): RoutingDecision {
         if (!GoogleSearchUrlParser.isWebUri(uri)) return RoutingDecision.INVALID_LINK
         if (GoogleSearchUrlParser.extractQuery(uri) == null) return RoutingDecision.BROWSER_NOT_SEARCH
         return when (origin.kind) {
@@ -18,7 +19,7 @@ object RoutingPolicy {
             OriginKind.OTHER -> RoutingDecision.BROWSER_OTHER_APP
             OriginKind.UNKNOWN -> when {
                 !experimental -> RoutingDecision.BROWSER_UNKNOWN_ORIGIN
-                uri != null && GoogleSearchUrlParser.hasFinderSignature(uri) -> RoutingDecision.GOOGLE_EXPERIMENTAL
+                uri != null && GoogleSearchUrlParser.hasFinderSignature(uri, clients) -> RoutingDecision.GOOGLE_EXPERIMENTAL
                 else -> RoutingDecision.BROWSER_UNKNOWN_SIGNATURE
             }
         }

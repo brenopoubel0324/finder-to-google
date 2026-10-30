@@ -1,6 +1,6 @@
 # Validação no Samsung — Android 16/17 e One UI
 
-**Estado do candidato 1.1.0-rc.2: pendente no Samsung físico.** A assinatura da URL do S25 foi recebida e incorporada com testes automatizados. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
+**Estado do candidato 1.1.0-rc.3: pendente no Samsung físico.** A versão permite aprender assinaturas sem novo APK e gerenciar regras. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
 
 ## Preparação
 
@@ -91,7 +91,19 @@ Reabilite os aplicativos após os testes. App Links verificados, links forçados
 | 1.1.0-rc.1 debug, versionCode 2 | Atualização com mesmo certificado compilada; validação física pendente |
 | 1.1.0-rc.1 release, versionCode 2 | Nova chave, R8 ativo e assinatura verificada; validação física pendente |
 | 1.1.0-rc.2 debug/release, versionCode 3 | Nova assinatura exata do S25; instalação e abertura nativa no aparelho a confirmar |
+| 1.1.0-rc.3 debug/release, versionCode 4 | Calibração local e gerenciador; fluxo em aparelho a confirmar |
 
-Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.2.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
+Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.3.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
 
 Na atualização debug, registrar navegador e modo antes/depois; compatibilidade já ligada deve permanecer ligada. Para release com chave nova, a reinstalação única exige refazer configuração. Em futuras atualizações release, manter a mesma chave e aumentar versionCode; não desinstalar automaticamente nem assumir migração entre certificados diferentes. Validar também cancelamento da concessão de papel, remoção do papel e retorno às configurações.
+
+## Calibração e regras locais — rc.3
+
+1. Confirme versão rc.3 no rodapé, navegador padrão ativo e configurações preservadas. A lista inicial deve conter tablet/S25 ativos.
+2. Em Gerenciar assinaturas, desative a assinatura do aparelho. Com origem desconhecida, repetir a pesquisa no Finder deve encaminhar ao navegador.
+3. Toque Aprender URL do Finder → Copiar teste e iniciar. Abra o Finder, cole exatamente a frase e toque na sugestão da web. Não deve salvar regra antes de confirmar.
+4. Na captura, confira o client. Gire a tela: deve continuar aguardando confirmação, sem abrir Google automaticamente. Escolha Salvar e ativar compatibilidade: assinatura deve ficar ativa e a pesquisa ir ao Google App. Repita outro termo para comprovar efeito sem novo APK.
+5. Repita escolhendo Continuar sem salvar; regra/modo não devem mudar. Cancelar aprendizado, esperar cinco minutos ou reiniciar o processo deve encerrar a sessão. Uma pesquisa diferente não deve ser capturada.
+6. Cadastre um marcador manual válido, desative/reative/exclua e reinicie o app: lista deve persistir. Não apagar os padrões sem querer; se excluir tudo intencionalmente, não devem reaparecer ao reiniciar. A reinstalação, por remover dados, inicia lista nova.
+7. Cole uma URL/valor inválido no cadastro: deve haver erro, sem salvar. A lista limita a 32 regras. Teste também copiar diagnóstico: não pode conter URL, consulta ou desafio de calibração.
+8. Confira botão de aprendizado sem papel padrão, assinatura ausente/duplicada e Google/navegador indisponível; não considerar uma abertura ADB como comprovação de origem Finder. Outros apps verificáveis continuam no navegador.
