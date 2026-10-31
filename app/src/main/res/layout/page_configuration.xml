@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/settings_title" />
+  <TextView style="@style/UiBody" android:text="@string/configuration_intro" />
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardCornerRadius="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+      <TextView style="@style/UiCaption" android:text="@string/links_destination" />
+      <TextView style="@style/UiBody" android:id="@+id/selected_browser" />
+      <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/choose_browser" android:text="@string/choose_browser" />
+    </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardCornerRadius="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+      <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/experimental" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/experimental_title" />
+      <TextView style="@style/UiBody" android:text="@string/compatibility_summary" />
+      <TextView style="@style/UiCaption" android:id="@+id/signatures_status" />
+      <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/manage_signatures" android:text="@string/signatures_title" />
+    </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/configure_guide" android:text="@string/configure" />
+  <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/restore" android:text="@string/restore" />
+  <TextView style="@style/UiBody" android:text="@string/restore_message" />
+</LinearLayout>

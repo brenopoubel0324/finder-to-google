@@ -24,6 +24,12 @@ class LinkRouterActivity : AppCompatActivity() {
     private var googleFailure: SearchFailure? = null
     private var recoveryReason: BrowserFailure? = null
     private var calibrationClient: String? = null
+    private var presentedCompatibility: Boolean? = null
+
+    override fun onResume() {
+        super.onResume()
+        if (calibrationClient != null && ::prefs.isInitialized) refreshCalibrationConsent()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,7 +115,13 @@ class LinkRouterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_calibration)
         applySystemInsets()
         findViewById<TextView>(R.id.calibration_client).text = client
+        refreshCalibrationConsent()
         findViewById<MaterialButton>(R.id.confirm_signature).setOnClickListener {
+            if (presentedCompatibility != prefs.experimentalFinderDetection) {
+                refreshCalibrationConsent()
+                Toast.makeText(this, R.string.consent_changed, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             val result = FinderSignatureStore(this).save(client)
             if (result == SignatureSaveResult.SAVED) {
                 // Confirmação local explícita; Intent/extras nunca ativam compatibilidade.
@@ -120,6 +132,15 @@ class LinkRouterActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.skip_signature).setOnClickListener { routeOriginal() }
     }
 
+    private fun refreshCalibrationConsent() {
+        val enabled = prefs.experimentalFinderDetection
+        presentedCompatibility = enabled
+        findViewById<MaterialButton>(R.id.confirm_signature).setText(
+            if (enabled) R.string.confirm_pattern_only else R.string.calibration_confirm_save)
+        findViewById<TextView>(R.id.calibration_message).setText(
+            if (enabled) R.string.confirm_pattern_active_message else R.string.calibration_confirm_message)
+    }
+
     private fun showRecovery(reason: BrowserFailure) {
         recoveryReason = reason
         setContentView(R.layout.activity_recovery)
@@ -128,16 +149,26 @@ class LinkRouterActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.recovery_message).text = googleFailure?.let {
             getString(it.messageRes()) + "\n\n" + detail
         } ?: detail
-        findViewById<MaterialButton>(R.id.choose_browser).apply {
-            visibility = if (reason == BrowserFailure.INVALID_LINK) View.GONE else View.VISIBLE
-            setOnClickListener { showBrowserPicker(browser) { retryBrowser() } }
+        val invalid = reason == BrowserFailure.INVALID_LINK
+        val retryFirst = reason == BrowserFailure.LAUNCH_FAILED
+        findViewById<View>(R.id.recovery_hint).visibility = if (invalid) View.GONE else View.VISIBLE
+        findViewById<MaterialButton>(R.id.recovery_primary).apply {
+            setText(if (invalid) R.string.close else if (retryFirst) R.string.retry else R.string.choose_browser)
+            setOnClickListener {
+                if (invalid) finish() else if (retryFirst) retryBrowser()
+                else showBrowserPicker(browser) { retryBrowser() }
+            }
         }
-        findViewById<MaterialButton>(R.id.retry).apply {
-            visibility = if (reason == BrowserFailure.INVALID_LINK) View.GONE else View.VISIBLE
-            setOnClickListener { retryBrowser() }
+        findViewById<MaterialButton>(R.id.recovery_secondary).apply {
+            visibility = if (invalid) View.GONE else View.VISIBLE
+            setText(if (retryFirst) R.string.choose_browser else R.string.retry)
+            setOnClickListener { if (retryFirst) showBrowserPicker(browser) { retryBrowser() } else retryBrowser() }
         }
         findViewById<MaterialButton>(R.id.app_settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        findViewById<MaterialButton>(R.id.close).setOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.close).apply {
+            visibility = if (invalid) View.GONE else View.VISIBLE
+            setOnClickListener { finish() }
+        }
     }
 
     private fun retryBrowser() {

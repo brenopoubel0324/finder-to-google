@@ -1,5 +1,7 @@
 # Candidato 1.1.0-rc.3 — calibração local
 
+> Histórico da rc.3. Interface atual e validação em [rc.5](CANDIDATO_1.1.0-rc.5.md).
+
 Base 6784323, versionCode 4. Implementa o fluxo aprovado pelo usuário e o plano 0002. Mantém certificados existentes, minSdk 29, compile/target 36, duas Activities e ausência de rede/serviço/permissões sensíveis.
 
 ## Entrega funcional

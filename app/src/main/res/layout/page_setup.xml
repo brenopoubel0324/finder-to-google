@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/configure" />
+  <TextView style="@style/UiCaption" android:id="@+id/setup_progress" />
+  <LinearLayout android:id="@+id/step_browser" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <TextView style="@style/UiTitle" android:text="@string/setup_browser_title" />
+    <TextView style="@style/UiBody" android:text="@string/setup_browser_help" />
+    <TextView style="@style/UiBody" android:id="@+id/selected_browser" />
+    <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/change_browser" android:text="@string/change_browser" />
+  </LinearLayout>
+  <LinearLayout android:id="@+id/step_android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <TextView style="@style/UiTitle" android:text="@string/setup_android_title" />
+    <TextView style="@style/UiBody" android:text="@string/setup_android_help" />
+    <TextView style="@style/UiCaption" android:id="@+id/role_status" />
+  </LinearLayout>
+  <LinearLayout android:id="@+id/step_finder" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <TextView style="@style/UiTitle" android:text="@string/setup_finder_title" />
+    <TextView style="@style/UiBody" android:text="@string/setup_finder_help" />
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/experimental" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/experimental_title" />
+    <TextView style="@style/UiBody" android:text="@string/compatibility_summary" />
+    <com.google.android.material.button.MaterialButton style="@style/UiPrimary" android:id="@+id/answer_google" android:text="@string/answer_google" />
+    <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/answer_browser" android:text="@string/answer_browser" />
+    <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/answer_not_tested" android:text="@string/answer_not_tested" />
+    <TextView style="@style/UiBody" android:id="@+id/setup_feedback" android:accessibilityLiveRegion="polite" />
+  </LinearLayout>
+  <com.google.android.material.button.MaterialButton style="@style/UiPrimary" android:id="@+id/setup_continue" android:text="@string/continue_action" />
+  <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/setup_previous" android:text="@string/previous_step" />
+</LinearLayout>

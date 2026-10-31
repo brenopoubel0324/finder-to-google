@@ -55,6 +55,7 @@ class CalibrationUiTest {
 
     @Test fun `aprendizado exige papel e nao muda clipboard sem iniciar`() {
         val settings = Robolectric.buildActivity(SettingsActivity::class.java).setup()
+        settings.get().openPage(SettingsPage.CALIBRATION)
         settings.get().findViewById<MaterialButton>(R.id.learn_signature).performClick()
         assertNull(FinderCalibration.process.current())
         assertNull(context.getSystemService(ClipboardManager::class.java).primaryClip)
@@ -64,10 +65,11 @@ class CalibrationUiTest {
     @Test fun `botao explicito copia desafio e inicia sessao sem ligar compatibilidade`() {
         val role = shadowOf(context.getSystemService(RoleManager::class.java))
         role.addAvailableRole(RoleManager.ROLE_BROWSER); role.addHeldRole(RoleManager.ROLE_BROWSER)
+        installUiBrowser(context)
         val settings = Robolectric.buildActivity(SettingsActivity::class.java).setup()
-        settings.get().findViewById<MaterialButton>(R.id.learn_signature).performClick()
+        settings.get().openPage(SettingsPage.CALIBRATION)
         assertNull(FinderCalibration.process.current())
-        dialog().getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+        settings.get().findViewById<MaterialButton>(R.id.learn_signature).performClick()
         idle()
         val pending = requireNotNull(FinderCalibration.process.current())
         assertEquals(pending.phrase, context.getSystemService(ClipboardManager::class.java).primaryClip?.getItemAt(0)?.text.toString())
@@ -145,8 +147,8 @@ class CalibrationUiTest {
     @Test fun `cadastro manual valida e gerenciador desativa e exclui`() {
         val settings = Robolectric.buildActivity(SettingsActivity::class.java).setup()
         val store = FinderSignatureStore(context)
-        SignatureManager(settings.get(), store) {}.show()
-        dialog().getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+        settings.get().openPage(SettingsPage.PATTERNS)
+        settings.get().findViewById<MaterialButton>(R.id.add_signature).performClick()
         val add = dialog(); val input = add.findViewById<TextInputEditText>(R.id.signature_input)!!
         assertFalse(input.isSaveEnabled)
         input.setText("https://google.com/search?q=NAO_SALVAR")
@@ -157,15 +159,18 @@ class CalibrationUiTest {
         add.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
         assertTrue(client in store.enabledClients())
         assertFalse(AppPreferences(context).experimentalFinderDetection)
-        val index = store.all().indexOfFirst { it.client == client }
-        dialog().listView.performItemClick(View(context), index, index.toLong())
-        dialog().listView.performItemClick(View(context), 0, 0L)
+        fun row(): View {
+            val list = settings.get().findViewById<android.widget.LinearLayout>(R.id.patterns_list)
+            return (0 until list.childCount).map { list.getChildAt(it) }.first {
+                it.findViewById<TextView>(R.id.pattern_client).text.toString() == client
+            }
+        }
+        row().findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.pattern_toggle).isChecked = false
         assertFalse(client in store.enabledClients())
-        dialog().listView.performItemClick(View(context), index, index.toLong())
-        dialog().listView.performItemClick(View(context), 1, 1L)
+        row().findViewById<MaterialButton>(R.id.pattern_delete).performClick()
         assertFalse(store.all().any { it.client == client })
         assertFalse(context.getSharedPreferences("finder_rules", Context.MODE_PRIVATE).all.toString().contains("NAO_SALVAR"))
-        dialog().dismiss(); settings.pause().stop().destroy()
+        settings.pause().stop().destroy()
     }
 
     @Test fun `lista cheia mantem confirmacao sem ligar modo nem abrir Google`() {
@@ -177,6 +182,31 @@ class CalibrationUiTest {
         assertFalse(AppPreferences(context).experimentalFinderDetection)
         assertNull(shadowOf(controller.get()).nextStartedActivity)
         assertFalse(client in store.enabledClients())
+        controller.pause().stop().destroy()
+    }
+
+    @Test fun `modo alterado depois de apresentar confirmacao exige novo consentimento`() {
+        val prefs = AppPreferences(context).apply { experimentalFinderDetection = true }
+        val controller = capture(); val activity = controller.get()
+        assertEquals(context.getString(R.string.confirm_pattern_only), activity.findViewById<MaterialButton>(R.id.confirm_signature).text.toString())
+        prefs.experimentalFinderDetection = false
+        activity.findViewById<MaterialButton>(R.id.confirm_signature).performClick()
+        assertFalse(prefs.experimentalFinderDetection)
+        assertFalse(client in FinderSignatureStore(context).enabledClients())
+        assertNull(shadowOf(activity).nextStartedActivity)
+        assertEquals(context.getString(R.string.calibration_confirm_save), activity.findViewById<MaterialButton>(R.id.confirm_signature).text.toString())
+        activity.findViewById<MaterialButton>(R.id.confirm_signature).performClick()
+        assertTrue(prefs.experimentalFinderDetection)
+        assertEquals(Intent.ACTION_WEB_SEARCH, shadowOf(activity).nextStartedActivity?.action)
+        controller.pause().stop().destroy()
+    }
+    @Test fun `retorno a confirmacao atualiza explicacao e nao pesquisa sozinho`() {
+        val prefs = AppPreferences(context).apply { experimentalFinderDetection = true }
+        val controller = capture()
+        controller.pause(); prefs.experimentalFinderDetection = false; controller.resume()
+        assertEquals(context.getString(R.string.calibration_confirm_save), controller.get().findViewById<MaterialButton>(R.id.confirm_signature).text.toString())
+        assertNull(shadowOf(controller.get()).nextStartedActivity)
+        assertFalse(prefs.experimentalFinderDetection)
         controller.pause().stop().destroy()
     }
 }

@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/app_name" />
+  <TextView style="@style/UiBody" android:text="@string/home_subtitle" />
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardCornerRadius="20dp" app:cardBackgroundColor="?attr/colorPrimaryContainer">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+      <TextView style="@style/UiCaption" android:id="@+id/status" android:textColor="?attr/colorOnPrimaryContainer" />
+      <TextView style="@style/UiBody" android:id="@+id/readiness" android:textColor="?attr/colorOnPrimaryContainer" />
+      <com.google.android.material.button.MaterialButton style="@style/UiPrimary" android:id="@+id/home_primary" android:text="@string/configure" />
+    </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardCornerRadius="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+      <TextView style="@style/UiCaption" android:text="@string/links_destination" />
+      <TextView style="@style/UiBody" android:id="@+id/selected_browser" />
+      <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/change_browser" android:text="@string/change_browser" />
+      <TextView style="@style/UiCaption" android:text="@string/search_destination" />
+      <TextView style="@style/UiBody" android:text="@string/google_destination" />
+    </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+  <TextView style="@style/UiBody" android:text="@string/local_summary" />
+</LinearLayout>

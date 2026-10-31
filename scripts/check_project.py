@@ -77,7 +77,8 @@ class ProjectContractTest(unittest.TestCase):
             ids.update(re.findall(r"@\+id/(\w+)", path.read_text()))
         resources.update(("id", name) for name in ids)
         for path in (ROOT / "app/src").rglob("*.kt"):
-            for kind, name in re.findall(r"(?<!android\.)\bR\.(id|string|layout|style|dimen)\.(\w+)", path.read_text()):
+            # R de dependências (ex.: Material Snackbar) não pertence ao catálogo do app.
+            for kind, name in re.findall(r"(?<![\w.])(?:br\.com\.findertogoogle\.)?R\.(id|string|layout|style|dimen)\.(\w+)", path.read_text()):
                 self.assertIn((kind, name), resources, f"{path}: R.{kind}.{name}")
 
 

@@ -89,4 +89,25 @@ class FinderSignatureStoreTest {
         raw.edit().putInt("disabled", 4).commit()
         assertTrue(FinderSignatureStore(context).enabledClients().isEmpty())
     }
+
+    @Test fun `desfazer preserva estado ativo ou desativado sem sobrescrever outra alteracao`() {
+        val store = FinderSignatureStore(context)
+        listOf(true, false).forEach { enabled ->
+            store.save("desfazer"); store.setEnabled("desfazer", enabled)
+            val rule = store.all().first { it.client == "desfazer" }
+            store.remove(rule.client)
+            assertEquals(SignatureRestoreResult.RESTORED, store.restore(rule))
+            assertEquals(enabled, FinderSignatureStore(context).all().first { it.client == rule.client }.enabled)
+            store.setEnabled(rule.client, !enabled)
+            assertEquals(SignatureRestoreResult.ALREADY_EXISTS, store.restore(rule))
+            assertEquals(!enabled, store.all().first { it.client == rule.client }.enabled)
+        }
+    }
+    @Test fun `desfazer respeita limite e recusa marcador invalido`() {
+        val store = FinderSignatureStore(context)
+        repeat(FinderSignatureStore.MAX_RULES - store.all().size) { store.save("limite-$it") }
+        assertEquals(SignatureRestoreResult.LIMIT_REACHED, store.restore(FinderSignature("ausente", false)))
+        assertEquals(SignatureRestoreResult.INVALID, store.restore(FinderSignature("https://url", true)))
+        assertFalse(store.all().any { it.client == "ausente" })
+    }
 }

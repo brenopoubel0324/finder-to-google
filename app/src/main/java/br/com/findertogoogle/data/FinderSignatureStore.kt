@@ -6,6 +6,7 @@ import br.com.findertogoogle.routing.GoogleSearchUrlParser
 
 data class FinderSignature(val client: String, val enabled: Boolean)
 enum class SignatureSaveResult { SAVED, INVALID, LIMIT_REACHED }
+enum class SignatureRestoreResult { RESTORED, ALREADY_EXISTS, LIMIT_REACHED, INVALID }
 
 /** Regras locais, sem consulta/URL. Não altera as preferências existentes do roteador. */
 class FinderSignatureStore(context: Context) {
@@ -43,6 +44,15 @@ class FinderSignatureStore(context: Context) {
     }
 
     fun remove(client: String) = synchronized(lock) { write(all().filterNot { it.client == client }) }
+
+    fun restore(rule: FinderSignature): SignatureRestoreResult = synchronized(lock) {
+        if (!FinderClientSignature.isValid(rule.client)) return SignatureRestoreResult.INVALID
+        val current = all()
+        if (current.any { it.client == rule.client }) return SignatureRestoreResult.ALREADY_EXISTS
+        if (current.size >= MAX_RULES) return SignatureRestoreResult.LIMIT_REACHED
+        write(current + rule)
+        SignatureRestoreResult.RESTORED
+    }
 
     private fun write(rules: List<FinderSignature>) {
         prefs.edit().putStringSet("registered", rules.map { it.client }.toSet())

@@ -1,6 +1,6 @@
 # Validação no Samsung — Android 16/17 e One UI
 
-**Estado do candidato 1.1.0-rc.3: pendente no Samsung físico.** A versão permite aprender assinaturas sem novo APK e gerenciar regras. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
+**Estado do candidato 1.1.0-rc.5: pendente no Samsung físico.** A versão permite aprender assinaturas sem novo APK e gerenciar regras. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
 
 ## Preparação
 
@@ -93,7 +93,7 @@ Reabilite os aplicativos após os testes. App Links verificados, links forçados
 | 1.1.0-rc.2 debug/release, versionCode 3 | Nova assinatura exata do S25; instalação e abertura nativa no aparelho a confirmar |
 | 1.1.0-rc.3 debug/release, versionCode 4 | Calibração local e gerenciador; fluxo em aparelho a confirmar |
 
-Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.3.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
+Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.5.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
 
 Na atualização debug, registrar navegador e modo antes/depois; compatibilidade já ligada deve permanecer ligada. Para release com chave nova, a reinstalação única exige refazer configuração. Em futuras atualizações release, manter a mesma chave e aumentar versionCode; não desinstalar automaticamente nem assumir migração entre certificados diferentes. Validar também cancelamento da concessão de papel, remoção do papel e retorno às configurações.
 
@@ -107,3 +107,14 @@ Na atualização debug, registrar navegador e modo antes/depois; compatibilidade
 6. Cadastre um marcador manual válido, desative/reative/exclua e reinicie o app: lista deve persistir. Não apagar os padrões sem querer; se excluir tudo intencionalmente, não devem reaparecer ao reiniciar. A reinstalação, por remover dados, inicia lista nova.
 7. Cole uma URL/valor inválido no cadastro: deve haver erro, sem salvar. A lista limita a 32 regras. Teste também copiar diagnóstico: não pode conter URL, consulta ou desafio de calibração.
 8. Confira botão de aprendizado sem papel padrão, assinatura ausente/duplicada e Google/navegador indisponível; não considerar uma abertura ADB como comprovação de origem Finder. Outros apps verificáveis continuam no navegador.
+
+
+## UX/UI — rc.5, roteiro físico ainda pendente
+
+- Instale a atualização por cima e confira que navegador, modo, diagnóstico e padrões ativos/desativados continuam iguais. O início deve orientar a próxima ação sem forçar onboarding.
+- Navegue Início → Configurações → Ajuda → Voltar; a pilha não deve acumular páginas duplicadas. Abra o guia, cancele o pedido Android e confira que não houve sucesso fictício.
+- Teste dentro do Finder; confirmação do usuário e teste direto de destino são ações distintas. Mudar modo/navegador/padrões/papel invalida a confirmação humana da sessão.
+- Teste copiar/colar o desafio, sessão expirada, cancelamento, captura, rotação e retorno após mudar compatibilidade em outra tela. Nenhuma confirmação deve ocorrer automaticamente.
+- Misture regras ativas/desativadas, gire a tela e reinicie o app: o estado deve permanecer. Exclua uma desativada e use Desfazer: ela deve continuar desativada. Confirme capacidade e conflito de undo sem sobrescrita.
+- Com fonte 200% e teclado aberto, o cadastro manual deve rolar até campo/erro/botões. Verifique TalkBack, gestos/três botões, temas e paisagem no S25 e tablet. As prévias de teste não substituem esse roteiro.
+- Para medir as metas, siga o protocolo no plano 0003 com versão SUS brasileira validada/fonte registrada antes de aplicar, participantes e tempos reais. Nada foi medido automaticamente no app.

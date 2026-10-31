@@ -1,7 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_primary">#315DA8</color>
-    <color name="brand_on_primary">#FFFFFF</color>
-    <bool name="light_system_bars">true</bool>
-    <color name="icon_background">#315DA8</color>
+  <color name="brand_primary">#315DA8</color>
+  <color name="brand_on_primary">#FFFFFF</color>
+  <bool name="light_system_bars">true</bool>
+  <color name="icon_background">#315DA8</color>
+  <color name="brand_container">#D9E5FF</color>
+  <color name="brand_on_container">#0C1B37</color>
+  <color name="app_surface">#F8F9FC</color>
+  <color name="app_on_surface">#191C20</color>
+  <color name="app_on_surface_variant">#444A55</color>
 </resources>

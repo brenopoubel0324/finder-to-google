@@ -1,6 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_primary">#ADC7FF</color>
-    <color name="brand_on_primary">#002E69</color>
-    <bool name="light_system_bars">false</bool>
+  <color name="brand_primary">#ADC7FF</color>
+  <color name="brand_on_primary">#002E69</color>
+  <bool name="light_system_bars">false</bool>
+  <color name="brand_container">#243D66</color>
+  <color name="brand_on_container">#D9E5FF</color>
+  <color name="app_surface">#101318</color>
+  <color name="app_on_surface">#E2E6EC</color>
+  <color name="app_on_surface_variant">#C3C7D1</color>
 </resources>

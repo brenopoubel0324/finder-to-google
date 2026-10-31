@@ -1,6 +1,6 @@
 # Estado atual
 
-O projeto está no candidato **1.1.0-rc.3**, versionCode 4, com calibração e gestão de regras locais para aprender novos valores de client sem recompilar. Consulte [a entrega atual](CANDIDATO_1.1.0-rc.3.md), [o escopo](planos/0002-calibracao-local.md) e [a autoauditoria](AUTOAUDITORIA_CALIBRACAO.md). Relatórios rc.1/rc.2 são históricos; nenhum resultado físico dessas versões é atribuído ao candidato atual.
+O projeto está no candidato **1.1.0-rc.5**, code 6, com a execução de UX/UI do plano 0003: início simples, guia, ajuda, calibração em passos e padrões com Desfazer. Veja [o registro atual](CANDIDATO_1.1.0-rc.5.md) e [a autoauditoria](AUTOAUDITORIA_UX_UI.md). A rc.4/code 5 foi um candidato intermediário; a rc.5 inclui o formulário rolável e a proteção de opções contra estado legado de Views. Sem medição SUS/tempos nem QA físico declarados.
 
 O histórico abaixo descreve a entrega inicial 1.0.0 e não substitui as pendências atuais do S25/Android 17.
 

@@ -2,7 +2,7 @@
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
-**Candidato 1.1.0-rc.3 implementado.** Permite aprender assinaturas pelo Finder e gerenciar regras locais com efeito imediato, sem recompilar para cada valor novo de client. Inclui as melhorias anteriores de interface, migração, recuperação e diagnóstico. A atualização debug preserva certificado e preferências; o release mantém a chave definitiva. **O fluxo foi testado automaticamente; falta a confirmação física no Samsung.** Consulte [a entrega atual](docs/CANDIDATO_1.1.0-rc.3.md).
+**Candidato 1.1.0-rc.5 implementado.** Nova tela inicial com estado e próxima ação, configuração guiada em três etapas, Ajuda separada, calibração em passos e lista de Padrões de links com ativação direta e Desfazer exclusão. A atualização debug mantém certificado e configurações. Regras locais continuam funcionando sem recompilar. Consulte [a entrega de UX/UI](docs/CANDIDATO_1.1.0-rc.5.md). A medição de SUS/tempos de tarefa e o QA físico no Samsung permanecem pendentes; não há índice de usabilidade inventado.
 
 ## Regra de roteamento desta versão
 
@@ -71,29 +71,32 @@ Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e bu
 
 ## Instalar e configurar
 
-1. Para preservar as configurações atuais, use a **atualização debug**, assinada com o mesmo certificado da versão 1.0.0, e instale por cima. O **release** usa a chave definitiva nova: Android rejeita atualização direta sobre o debug; a reinstalação exige configurar novamente. Não há desinstalação automática. Para instalar uma compilação local via ADB:
+1. Extraia o ZIP da **atualização debug** e instale o APK por cima da sua versão debug, sem desinstalar. O release tem certificado definitivo diferente: atualiza release, mas migrar do debug exige reinstalar e configurar novamente. Não há desinstalação automática.
+2. O **Início** mostra o estado real do Android e a próxima ação. Quem já tem navegador/papel configurados não precisa refazer o guia. Configurações e Ajuda ficam nos ícones do cabeçalho, com rótulos acessíveis.
+3. **Configurar em 3 etapas** permite escolher navegador, solicitar o papel padrão no diálogo Android e testar dentro do Finder. Cancelar a solicitação mantém o estado real. A opção de compatibilidade continua desligada em instalação nova e preserva a escolha anterior numa atualização.
+4. Na etapa de teste, abra o Finder, pesquise `teste` e toque na sugestão da web. Ao voltar, informe onde abriu. Essa confirmação humana vale para a sessão e é invalidada se a configuração mudar; o app não presume resultados nativos só porque a Intent foi aceita.
+5. Se abrir no navegador, use **Ajuda → Pesquisa do Finder abre no navegador**. O fluxo corrige requisitos ausentes, orienta a compatibilidade ou abre o ajuste guiado, conforme a configuração. Verificar Google App/Verificar navegador escolhido testam apenas os destinos.
+6. O cadastro manual e os padrões ficam em **Configurações → Padrões de links**. Diagnóstico opcional e cópia estão em **Ajuda → Detalhes para suporte**. Mudar navegador padrão do Android abre as configurações do sistema, sem prometer restaurar automaticamente um navegador anterior.
 
-   ```sh
-   adb install -r app/build/outputs/apk/debug/app-debug.apk
-   ```
+Para instalação local por ADB, opcional:
 
-   Alternativamente, transfira o APK ao aparelho e abra-o. Autorize a instalação por essa fonte se o Android solicitar. Restrições do Samsung Auto Blocker ou de administração podem exigir ajuste manual autorizado pelo dono do dispositivo.
-2. Abra **Finder to Google** e toque em **Escolher navegador**. Selecione Vivaldi, Samsung Internet, Chrome ou outro navegador compatível. Essa escolha pode ser trocada depois, sem alterar o navegador padrão do Android.
-3. Use **Testar link comum** e **Testar pesquisa no Google App** para verificar os dois destinos.
-4. Toque em **Ativar interceptação**, leia o efeito e confirme no diálogo do Android. Só o usuário concede o papel; a tela consulta `RoleManager.isRoleHeld()` para mostrar o estado real, inclusive após cancelamento ou mudança nas configurações.
-5. Abra o Finder e toque em uma sugestão de **Pesquisas da web sugeridas**. Se for para o navegador, abra **Diagnóstico e opções avançadas**, ligue **Diagnóstico local**, repita e consulte a origem informada.
-6. Se a origem for desconhecida e o aparelho usar a assinatura confirmada no handoff, você pode ligar **Compatibilidade com Finder (Samsung)** e repetir o teste. Isso amplia a regra para URLs semelhantes de origem desconhecida.
+```sh
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+Autorize a instalação pela fonte usada se o Android solicitar. Samsung Auto Blocker/políticas do aparelho podem exigir ajuste manual pelo proprietário.
 
 Ao tornar este app navegador padrão, **outros links também passam por ele** e são encaminhados explicitamente ao navegador escolhido. App Links verificados e intents direcionadas a outro pacote podem seguir diretamente ao destino definido pelo sistema, sem passar pelo roteador. O app não controla `google.com`, não declara App Links verificados e não altera essa configuração.
 
-### Aprender e gerenciar assinaturas sem recompilar
+### Aprender e gerenciar padrões sem recompilar
 
-1. Com a interceptação já ativa, toque em **Aprender URL do Finder** e depois **Copiar teste e iniciar**.
-2. Abra o Finder, cole a frase fictícia gerada e toque na sugestão da web. O desafio deve coincidir exatamente. A sessão vale cinco minutos, somente em memória; se o Android encerrar o processo, inicie novamente.
-3. Confira o valor de client apresentado e toque em **Salvar e ativar compatibilidade**. Só essa confirmação salva a assinatura e liga a opção. A pesquisa segue então a política normal. **Continuar sem salvar** preserva regras/modo.
-4. Em **Gerenciar assinaturas**, adicione somente o valor de client, ative/desative ou exclua. Mudanças valem no próximo link, sem reiniciar ou gerar APK. Salvar pelo cadastro manual não liga a compatibilidade automaticamente.
+Com navegador e papel padrão disponíveis, siga o ajuste de reconhecimento pela Ajuda. **Copiar pesquisa e iniciar teste** cria uma frase fictícia e a copia mediante toque explícito. Cole-a exatamente no Finder e toque na sugestão da web. A sessão vale cinco minutos, em memória; uma espera perdida pode ser reiniciada. Uma captura já feita mantém confirmação restaurável, sem armar sessão nem repetir pesquisa.
 
-As regras ficam no arquivo local `finder_rules`, até 32 registros (inclusive desativados), sem URL/pesquisa. Um client tem de 1 a 128 caracteres ASCII: letras, números, ponto, hífen ou sublinhado, começando por letra/número. A comparação é exata e diferencia maiúsculas/minúsculas. Calibração recusa client ausente/inválido/duplicado; outros links não são capturados e outro app com identidade verificável mantém a rota ao navegador. O teste só altera o clipboard após o botão que informa a cópia. Não há serviço, timer ou tarefa residente para esperar o link.
+Na confirmação, confira o padrão e seu efeito. **Salvar e ativar compatibilidade** aparece quando o modo está desligado; **Salvar padrão**, quando já está ligado. O estado é revalidado ao retornar e no clique. **Continuar sem salvar** preserva modo/regras e segue a política normal.
+
+Em Padrões de links, use os switches para ativar/desativar, Adicionar padrão para cadastro manual e Excluir padrão/Desfazer. Undo restaura exatamente o estado ativo/desativado anterior, sem sobrescrever uma alteração mais recente e respeitando capacidade. Campos e controles derivados de preferências não aceitam estado automático obsoleto de Views; rotação não pode mudar escolhas. O formulário manual tem rolagem para fonte ampliada/teclado.
+
+Regras em `finder_rules`, no máximo 32 (inclusive desativadas), sem URL/consulta. Client tem de 1 a 128 caracteres ASCII (letras, números, ponto, hífen ou sublinhado, começando por letra/número), com comparação exata. Calibração exige client único válido e desafio exato; outro app verificável continua no navegador. Não há serviço ou timer residente. A frase de teste só altera o clipboard no botão explícito.
 
 Não requer root, Shizuku, acessibilidade, VPN, ADB após instalação, conta própria ou serviço em segundo plano. O Google App e o navegador fazem suas próprias conexões normalmente; o roteador não pede `INTERNET` nem efetua chamadas de rede.
 
@@ -116,7 +119,7 @@ Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics,
 
 ## Release e atualização
 
-A versão debug e a release usam o mesmo applicationId e versionCode 4, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
+A versão debug e a release usam o mesmo applicationId e versionCode 6, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
 
 Para compilar release, configure as quatro variáveis descritas em `.env.example`: `FINDER_RELEASE_KEYSTORE`, `FINDER_RELEASE_KEY_ALIAS`, `FINDER_RELEASE_STORE_PASSWORD` e `FINDER_RELEASE_KEY_PASSWORD`. Use armazenamento local privado ou um gerenciador de segredos; não coloque senhas em comandos de build, commits ou relatórios. Debug e testes não dependem dessas variáveis. `verifyReleaseSigning` impede preparar release sem elas.
 

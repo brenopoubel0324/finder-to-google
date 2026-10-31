@@ -1,0 +1,7 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/signatures_title" />
+  <TextView style="@style/UiBody" android:text="@string/patterns_intro" />
+  <TextView style="@style/UiCaption" android:id="@+id/signatures_status" />
+  <LinearLayout android:id="@+id/patterns_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/add_signature" android:text="@string/signature_add" />
+</LinearLayout>

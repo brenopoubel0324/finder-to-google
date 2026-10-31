@@ -1,0 +1,11 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/calibration_guide_title" />
+  <TextView style="@style/UiCaption" android:id="@+id/calibration_step" />
+  <TextView style="@style/UiBody" android:id="@+id/calibration_help" />
+  <TextView style="@style/UiBody" android:id="@+id/calibration_status" android:saveEnabled="false" android:textIsSelectable="true" />
+  <com.google.android.material.button.MaterialButton style="@style/UiPrimary" android:id="@+id/learn_signature" android:text="@string/calibration_start" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/copy_calibration" android:text="@string/copy_again" />
+  <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/cancel_calibration" android:text="@string/calibration_cancel" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/test_finder_after_calibration" android:text="@string/setup_finder_title" />
+  <TextView style="@style/UiBody" android:text="@string/calibration_privacy" />
+</LinearLayout>

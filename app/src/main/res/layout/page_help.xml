@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView style="@style/UiTitle" android:text="@string/help_title" />
+  <TextView style="@style/UiBody" android:text="@string/help_intro" />
+  <com.google.android.material.button.MaterialButton style="@style/UiPrimary" android:id="@+id/finder_problem" android:text="@string/finder_problem" />
+  <TextView style="@style/UiBody" android:text="@string/direct_tests_hint" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/test_search" android:text="@string/test_search" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/test_link" android:text="@string/test_link" />
+  <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/advanced_toggle" android:text="@string/advanced_show" />
+  <LinearLayout android:id="@+id/advanced_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/diagnostics" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/diagnostics_title" />
+    <TextView style="@style/UiBody" android:text="@string/diagnostics_description" />
+    <TextView style="@style/UiBody" android:id="@+id/diagnostic_summary" />
+    <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/copy_diagnostics" android:text="@string/copy_diagnostics" />
+    <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/diagnostic_details_toggle" android:text="@string/diagnostic_details" />
+    <TextView style="@style/UiBody" android:id="@+id/diagnostic_report" android:textIsSelectable="true" />
+    <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/clear_diagnostics" android:text="@string/clear_diagnostics" />
+    <TextView style="@style/UiBody" android:text="@string/origin_warning" />
+  </LinearLayout>
+</LinearLayout>

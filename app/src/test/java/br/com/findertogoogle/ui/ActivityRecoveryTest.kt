@@ -97,7 +97,9 @@ class ActivityRecoveryTest {
         }
         val controller = Robolectric.buildActivity(SettingsActivity::class.java).setup()
         val activity = controller.get()
+        activity.openPage(SettingsPage.CONFIGURATION)
         assertTrue(activity.findViewById<MaterialSwitch>(R.id.experimental).isChecked)
+        activity.openPage(SettingsPage.HELP)
         assertEquals(View.GONE, activity.findViewById<View>(R.id.advanced_content).visibility)
         activity.findViewById<MaterialButton>(R.id.advanced_toggle).performClick()
         assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.advanced_content).visibility)
