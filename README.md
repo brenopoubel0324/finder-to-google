@@ -2,7 +2,7 @@
 
 [Repositório no GitHub](https://github.com/brenopoubel0324/finder-to-google) · [APKs e relatórios da 1.1.0-rc.5](https://github.com/brenopoubel0324/finder-to-google/releases/tag/v1.1.0-rc.5)
 
-Para atualizar a instalação debug existente, use o APK debug anexado à pré-release. O debug gerado pelo GitHub Actions usa a chave do runner e pode ter certificado diferente. A chave definitiva e as chaves debug locais não são publicadas.
+Para atualizar a instalação debug existente, use o APK debug indicado nos downloads da pré-release. O debug gerado pelo GitHub Actions usa a chave do runner e pode ter certificado diferente. A chave definitiva e as chaves debug locais não são publicadas.
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
