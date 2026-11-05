@@ -71,7 +71,7 @@ Checksum conferido na [lista oficial gradle/actions](https://github.com/gradle/a
 
 Ambientes com proxy podem exigir propriedades JVM de proxy/truststore para o próprio Gradle no arquivo local `~/.gradle/gradle.properties`. O bootstrap respeita `HTTPS_PROXY`; nunca desabilita a verificação TLS. Não coloque credenciais no repositório.
 
-Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e build e publica APK/relatórios como artefatos **se o projeto for colocado em um repositório GitHub e o workflow for executado**. Consulte a aba Actions para verificar o estado efetivo de cada execução; não confunda compilação local com CI remoto aprovado.
+O workflow em `.github/workflows/android.yml` executa verificações estruturais, testes, Lint e build e publica APK/relatórios como artefatos. O projeto já está publicado no GitHub; consulte a [aba Actions](https://github.com/brenopoubel0324/finder-to-google/actions) para verificar o resultado de cada revisão. Compilar o APK de instrumentação não significa executar seus testes em um aparelho.
 
 ## Instalar e configurar
 
