@@ -1,5 +1,9 @@
 # Finder to Google
 
+[Repositório no GitHub](https://github.com/brenopoubel0324/finder-to-google) · [APKs e relatórios da 1.1.0-rc.5](https://github.com/brenopoubel0324/finder-to-google/releases/tag/v1.1.0-rc.5)
+
+Para atualizar a instalação debug existente, use o APK debug anexado à pré-release. O debug gerado pelo GitHub Actions usa a chave do runner e pode ter certificado diferente. A chave definitiva e as chaves debug locais não são publicadas.
+
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
 **Candidato 1.1.0-rc.5 implementado.** Nova tela inicial com estado e próxima ação, configuração guiada em três etapas, Ajuda separada, calibração em passos e lista de Padrões de links com ativação direta e Desfazer exclusão. A atualização debug mantém certificado e configurações. Regras locais continuam funcionando sem recompilar. Consulte [a entrega de UX/UI](docs/CANDIDATO_1.1.0-rc.5.md). A medição de SUS/tempos de tarefa e o QA físico no Samsung permanecem pendentes; não há índice de usabilidade inventado.
@@ -67,7 +71,7 @@ Checksum conferido na [lista oficial gradle/actions](https://github.com/gradle/a
 
 Ambientes com proxy podem exigir propriedades JVM de proxy/truststore para o próprio Gradle no arquivo local `~/.gradle/gradle.properties`. O bootstrap respeita `HTTPS_PROXY`; nunca desabilita a verificação TLS. Não coloque credenciais no repositório.
 
-Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e build e publica APK/relatórios como artefatos **se o projeto for colocado em um repositório GitHub e o workflow for executado**. Nenhuma execução remota foi iniciada nesta entrega.
+Há um workflow em `.github/workflows/android.yml` que executa testes, Lint e build e publica APK/relatórios como artefatos **se o projeto for colocado em um repositório GitHub e o workflow for executado**. Consulte a aba Actions para verificar o estado efetivo de cada execução; não confunda compilação local com CI remoto aprovado.
 
 ## Instalar e configurar
 
