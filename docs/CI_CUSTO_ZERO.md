@@ -56,8 +56,25 @@ budgets pessoais exigem acesso separado e não foram alterados.
 
 Validação local desta mudança: actionlint 1.7.12, parsing YAML, comparação dos
 passos/permissões/triggers com o original, git diff --check e os seis testes de
-scripts/check_project.py. Build Android completo depende do resultado da CI;
-não confundir essas verificações locais com um build completo.
+scripts/check_project.py. As execuções 42219405906 (push) e 42219460309 (PR),
+do commit 651ac7628b7be01e738e77e773fdf2c0db18a097, foram recusadas antes
+de iniciar o build: "The job was not started because your account is locked
+due to a billing issue." Isso confirma o bloqueio da conta, sem identificar
+produto ou dívida. O PR permanece em rascunho; build desta revisão está
+BLOQUEADO. Não há justificativa para repetir tentativas antes de tratar billing.
+
+Foi possível baixar o artefato anterior 13412478389 da execução 42023619413.
+O SHA-256 do ZIP coincide com o digest publicado pelo GitHub:
+3ddd04bc9fe8de3cdab4ac09f9c1c31635e14f1a84eec185c0c70ec85380a443.
+O APK extraído, outputs/apk/debug/app-debug.apk, tem 14.089.737 bytes e SHA-256
+e1d88bbbd8e812a6440791a364e3db182059b66acf5344bb466ce0a3add29177.
+Integridade ZIP de ambos aprovada. Assinatura e compatibilidade no dispositivo
+não foram revalidadas. Esse artefato pertence ao baseline, não à nova revisão.
+
+Esta atualização documental usa [skip ci] para evitar mais tentativas enquanto
+a conta está bloqueada. Após verificar os controles financeiros sem habilitar
+despesas, executar o workflow na ref da revisão; criar commit revisado sem
+marcador se necessário para os checks de PR. Não integrar sem validar o build.
 
 Rollback: antes do merge, fechar o PR deixa main intacta. Depois do merge,
 reverter o commit da alteração. Os comandos Gradle, SDK, assinatura e nomes dos
