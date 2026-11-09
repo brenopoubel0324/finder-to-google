@@ -2,11 +2,13 @@
 
 [Repositório no GitHub](https://github.com/brenopoubel0324/finder-to-google) · [APKs e relatórios da 1.1.0-rc.5](https://github.com/brenopoubel0324/finder-to-google/releases/tag/v1.1.0-rc.5)
 
-Para atualizar a instalação debug existente, use o APK debug indicado nos downloads da pré-release. O debug gerado pelo GitHub Actions usa a chave do runner e pode ter certificado diferente. A chave definitiva e as chaves debug locais não são publicadas.
+**Lançamento 1.1.0 em preparação (code 7).** Canal: APK no GitHub. Consulte [instalação e migração para release](docs/INSTALACAO_RELEASE.md), [privacidade](docs/PRIVACIDADE.md), [histórico](CHANGELOG.md) e [critérios de publicação](docs/LANCAMENTO_1.1.0.md). A rc.5 funcionou no S25/Android 17 segundo confirmação do usuário em 09/11/2026; o APK release exato ainda precisa do smoke antes da publicação final.
+
+Para manter sua instalação debug durante os testes, continue usando o APK debug da pré-release existente. Migrar para a assinatura definitiva exige reinstalar uma vez e refazer configurações. O debug gerado pelo GitHub Actions usa a chave do runner e pode ter certificado diferente. Nenhuma chave privada é publicada.
 
 Aplicativo Android nativo em Kotlin, interface Material 3 em português (Brasil), com tema claro/escuro. Funciona como roteador local de links: pode ocupar o papel de navegador padrão, enviar pesquisas do Finder ao Google App e encaminhar outras URLs ao navegador selecionado. Android 10+ (`minSdk 29`), compilação e destino Android 16 (`compileSdk`/`targetSdk 36`).
 
-**Candidato 1.1.0-rc.5 implementado.** Nova tela inicial com estado e próxima ação, configuração guiada em três etapas, Ajuda separada, calibração em passos e lista de Padrões de links com ativação direta e Desfazer exclusão. A atualização debug mantém certificado e configurações. Regras locais continuam funcionando sem recompilar. Consulte [a entrega de UX/UI](docs/CANDIDATO_1.1.0-rc.5.md). A medição de SUS/tempos de tarefa e o QA físico no Samsung permanecem pendentes; não há índice de usabilidade inventado.
+Nova tela inicial com estado e próxima ação, configuração guiada em três etapas, Ajuda separada, calibração em passos e lista de Padrões de links com ativação direta e Desfazer exclusão. Regras locais continuam funcionando sem recompilar. A base funcional é a [rc.5](docs/CANDIDATO_1.1.0-rc.5.md); esta preparação preserva seu comportamento. Medição de SUS/tempos de tarefa e a matriz física completa permanecem pendentes.
 
 ## Regra de roteamento desta versão
 
@@ -110,7 +112,7 @@ Não requer root, Shizuku, acessibilidade, VPN, ADB após instalação, conta pr
 - Navegador removido, desativado, ausente ou com abertura bloqueada: exibe recuperação para escolher outro e continuar **o link recebido**. Não usa um `ACTION_VIEW` implícito nem escolhe outro pacote sem ação do usuário.
 - Atualização que renomeie a Activity do navegador: revalida as Activities disponíveis no mesmo pacote selecionado. Não muda para um pacote diferente automaticamente.
 - Sem navegador instalado compatível com HTTP e HTTPS: orienta instalar/habilitar um. Links não são consumidos silenciosamente; é possível tentar novamente ou fechar explicitamente.
-- **Restaurar navegador anterior** abre, após orientação, as configurações de aplicativos padrão. Em One UI, procure **Configurações → Aplicativos → Escolher aplicativos padrão → Aplicativo de navegador**. Selecione o navegador anterior manualmente. O app não promete restaurar automaticamente nem guarda uma suposição sobre qual era o padrão.
+- **Mudar navegador padrão do Android** abre as configurações de aplicativos padrão. Em One UI, procure **Configurações → Aplicativos → Escolher aplicativos padrão → Aplicativo de navegador**. Selecione o navegador anterior manualmente. O app não promete restaurar automaticamente nem guarda uma suposição sobre qual era o padrão.
 
 ## Parsing e privacidade
 
@@ -123,7 +125,7 @@ Preferências em `SharedPreferences` locais, backup desabilitado, sem analytics,
 
 ## Release e atualização
 
-A versão debug e a release usam o mesmo applicationId e versionCode 6, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
+A versão debug e a release usam o mesmo applicationId e versionCode 7, mas certificados diferentes. A release não deve ser instalada como atualização do debug. A chave definitiva foi criada a pedido do usuário; keystore, credenciais e cópia de segurança local ficam fora do projeto. Nunca inclua esses arquivos no fonte/instalador. A custódia e o backup durável da chave precisam ser mantidos separadamente para não perder a capacidade de atualizar o app.
 
 Para compilar release, configure as quatro variáveis descritas em `.env.example`: `FINDER_RELEASE_KEYSTORE`, `FINDER_RELEASE_KEY_ALIAS`, `FINDER_RELEASE_STORE_PASSWORD` e `FINDER_RELEASE_KEY_PASSWORD`. Use armazenamento local privado ou um gerenciador de segredos; não coloque senhas em comandos de build, commits ou relatórios. Debug e testes não dependem dessas variáveis. `verifyReleaseSigning` impede preparar release sem elas.
 
@@ -139,7 +141,7 @@ O último comando deve informar `false`. Preserve certificado e aumente versionC
 
 O usuário confirmou funcionamento em um **tablet**, com origem desconhecida e assinatura `tablet-android-samsung-rvo1`. Depois informou **Samsung S25, Android 17, One UI 9**, onde a captura da rc.1 mostra assinatura desconhecida e encaminhamento ao Samsung Browser. O usuário então enviou a URL de teste com `client=ms-android-samsung-a1-terr1-rvo1aqb`. A rc.2 reconhece essa assinatura exata, com regressão automatizada de política, encaminhamento WEB_SEARCH e fallback. O diagnóstico continua sem guardar URL/termo. Não generalizamos para qualquer URL Samsung nem confiamos no referrer do launcher. Falta confirmar o resultado no aparelho após atualizar.
 
-O target SDK continua 36 e não significa instalação restrita ao Android 16. A execução no Android 17 não foi certificada por este build. A validação final depende do S25 real e do APK candidato exato.
+Em 09/11/2026, o usuário confirmou que a rc.5 abriu uma pesquisa real do Finder no Google App no S25/Android 17. Essa confirmação individual não cobre toda a matriz nem o APK release 1.1.0/code 7. O target SDK continua 36 e não significa instalação restrita ao Android 16. A validação final depende do APK release exato, conforme o roteiro de lançamento.
 
 ## Testes e estrutura
 

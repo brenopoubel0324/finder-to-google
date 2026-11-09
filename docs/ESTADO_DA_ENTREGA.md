@@ -1,5 +1,7 @@
 # Estado atual
 
+**09/11/2026 — preparação 1.1.0/code 7 para APK no GitHub.** O usuário confirmou a rc.5 no fluxo real do Finder no S25/Android 17. A base funcional foi preservada; nova release assinada em preparação, com instalação/migração, privacidade e verificação de entrega. Consulte [lançamento](LANCAMENTO_1.1.0.md). Smoke do APK release exato e custódia durável da chave continuam pendentes. Os registros abaixo descrevem candidatos e entregas anteriores.
+
 O projeto está no candidato **1.1.0-rc.5**, code 6, com a execução de UX/UI do plano 0003: início simples, guia, ajuda, calibração em passos e padrões com Desfazer. Veja [o registro atual](CANDIDATO_1.1.0-rc.5.md) e [a autoauditoria](AUTOAUDITORIA_UX_UI.md). A rc.4/code 5 foi um candidato intermediário; a rc.5 inclui o formulário rolável e a proteção de opções contra estado legado de Views. Sem medição SUS/tempos nem QA físico declarados.
 
 O histórico abaixo descreve a entrega inicial 1.0.0 e não substitui as pendências atuais do S25/Android 17.

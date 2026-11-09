@@ -1,15 +1,15 @@
 # Validação no Samsung — Android 16/17 e One UI
 
-**Estado do candidato 1.1.0-rc.5: pendente no Samsung físico.** A versão permite aprender assinaturas sem novo APK e gerenciar regras. O APK foi compilado com SDK 36, mas nenhum Samsung físico está conectado. Os testes deste arquivo são um roteiro; não são resultados observados em One UI. Anote modelo, versão do Android, versão da One UI, versão do Google App e navegador/versão usados.
+**Atualização em 09/11/2026:** o usuário confirmou que a rc.5 abriu pesquisa real do Finder no Google App no S25/Android 17 (One UI 9 informado anteriormente). O teste do novo APK release 1.1.0/code 7 e o restante da matriz continuam pendentes. Nenhum Samsung está conectado a este ambiente. Os passos abaixo são roteiro, não resultados presumidos. Consulte [a preparação do lançamento](LANCAMENTO_1.1.0.md).
 
 ## Preparação
 
 1. Instale o APK entregue ou compile conforme o README. Abra Finder to Google.
 2. Selecione um navegador instalado (repita depois com Samsung Internet e Vivaldi/Chrome, se disponíveis).
-3. Toque em **Testar link comum**. Deve abrir `https://example.com/?origem=finder-to-google#teste` uma vez, no navegador escolhido.
-4. Toque em **Testar pesquisa no Google App**. Deve mostrar uma pesquisa nativa por `teste Finder to Google` no Google, sem aba de navegador. Esse botão testa o destino; não testa a origem Finder.
-5. Ligue **Diagnóstico local**. Deixe a opção experimental desligada inicialmente.
-6. Toque em **Ativar interceptação**, leia a explicação e confirme também no diálogo do Android.
+3. Na **Ajuda**, use a verificação do navegador escolhido. Deve abrir `https://example.com/?origem=finder-to-google#teste` uma vez, no navegador escolhido.
+4. Na **Ajuda**, use a verificação do Google App. Deve mostrar uma pesquisa nativa por `teste Finder to Google` no Google, sem aba de navegador. Esse botão testa o destino; não testa a origem Finder.
+5. Em **Ajuda → Detalhes para suporte**, ligue **Diagnóstico local** se desejar observar os resultados. Deixe a compatibilidade desligada inicialmente em um perfil de teste.
+6. No Início, siga **Configurar em 3 etapas**; escolha navegador e conceda o papel no diálogo Android. Na atualização de uma instalação configurada, não refaça nem apague suas escolhas.
 7. Volte ao app e confirme o status **Ativo como navegador padrão**. Negar/cancelar a solicitação deve manter o estado real anterior.
 
 ## Origem e Finder (teste definitivo)
@@ -92,16 +92,18 @@ Reabilite os aplicativos após os testes. App Links verificados, links forçados
 | 1.1.0-rc.1 release, versionCode 2 | Nova chave, R8 ativo e assinatura verificada; validação física pendente |
 | 1.1.0-rc.2 debug/release, versionCode 3 | Nova assinatura exata do S25; instalação e abertura nativa no aparelho a confirmar |
 | 1.1.0-rc.3 debug/release, versionCode 4 | Calibração local e gerenciador; fluxo em aparelho a confirmar |
+| 1.1.0-rc.5, versionCode 6 | Em 09/11/2026, usuário confirmou pesquisa real do Finder no Google App no S25/Android 17; não confirma matriz completa/release exata |
+| 1.1.0 release, versionCode 7 | Preparação do lançamento; registrar hash e smoke do APK exato antes de publicar |
 
 Antes de marcar final, registrar o SHA-256 do APK release testado conforme `CANDIDATO_1.1.0-rc.5.md` e concluir o roteiro acima. Repetir com fonte 200%, TalkBack, retrato/paisagem, gestos/três botões e temas claro/escuro. Conferir cópia/apagamento do diagnóstico e proteção na quarta abertura automática repetida (as três primeiras devem funcionar).
 
 Na atualização debug, registrar navegador e modo antes/depois; compatibilidade já ligada deve permanecer ligada. Para release com chave nova, a reinstalação única exige refazer configuração. Em futuras atualizações release, manter a mesma chave e aumentar versionCode; não desinstalar automaticamente nem assumir migração entre certificados diferentes. Validar também cancelamento da concessão de papel, remoção do papel e retorno às configurações.
 
-## Calibração e regras locais — rc.3
+## Calibração e regras locais — versão atual
 
-1. Confirme versão rc.3 no rodapé, navegador padrão ativo e configurações preservadas. A lista inicial deve conter tablet/S25 ativos.
-2. Em Gerenciar assinaturas, desative a assinatura do aparelho. Com origem desconhecida, repetir a pesquisa no Finder deve encaminhar ao navegador.
-3. Toque Aprender URL do Finder → Copiar teste e iniciar. Abra o Finder, cole exatamente a frase e toque na sugestão da web. Não deve salvar regra antes de confirmar.
+1. Confirme versão atual no rodapé, navegador padrão ativo e configurações preservadas. Em instalação nova, a lista começa com tablet/S25 ativos; atualização não deve repovoar regras removidas.
+2. Em Configurações → Padrões de links, desative o padrão do aparelho em um perfil de teste. Com origem desconhecida, repetir a pesquisa no Finder deve encaminhar ao navegador.
+3. Use Ajuda → Pesquisa do Finder abre no navegador para chegar ao ajuste guiado. Se a compatibilidade estiver desligada, o fluxo primeiro orienta sua ativação explícita. Copie a pesquisa de teste, abra o Finder, cole exatamente a frase e toque na sugestão da web. Não deve salvar regra antes de confirmar.
 4. Na captura, confira o client. Gire a tela: deve continuar aguardando confirmação, sem abrir Google automaticamente. Escolha Salvar e ativar compatibilidade: assinatura deve ficar ativa e a pesquisa ir ao Google App. Repita outro termo para comprovar efeito sem novo APK.
 5. Repita escolhendo Continuar sem salvar; regra/modo não devem mudar. Cancelar aprendizado, esperar cinco minutos ou reiniciar o processo deve encerrar a sessão. Uma pesquisa diferente não deve ser capturada.
 6. Cadastre um marcador manual válido, desative/reative/exclua e reinicie o app: lista deve persistir. Não apagar os padrões sem querer; se excluir tudo intencionalmente, não devem reaparecer ao reiniciar. A reinstalação, por remover dados, inicia lista nova.

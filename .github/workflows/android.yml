@@ -24,7 +24,9 @@ jobs:
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
       - name: Verificar contratos estruturais
-        run: python3 scripts/check_project.py
+        run: |
+          python3 scripts/check_project.py
+          python3 -m unittest discover -s scripts -p 'test_*.py'
       - name: Testar, verificar e compilar
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest --stacktrace
       - uses: actions/upload-artifact@v4
