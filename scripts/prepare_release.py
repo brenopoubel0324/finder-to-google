@@ -47,7 +47,7 @@ def check_components(tree):
         if current is not None and indent <= current[1] and line.strip():
             finish()
             current = None
-        match = re.match(r"\s*E: (activity|service|receiver|provider|activity-alias)\b", line)
+        match = re.match(r"\s*E: (activity-alias|activity|service|receiver|provider)\b", line)
         if match:
             current = (match.group(1), indent)
             attributes = {}

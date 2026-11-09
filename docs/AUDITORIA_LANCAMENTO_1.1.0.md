@@ -17,3 +17,9 @@ Validação inicial: seis contratos estruturais e quatro testes do verificador a
 Achado médio na aplicação do verificador ao APK real: a primeira regra rejeitava todos os providers/receivers, embora AndroidX acrescente InitializationProvider e ProfileInstallReceiver. Corrigida com lista exata de nomes/tipos, authorities, exported e permissão DUMP do receptor. Não remover inicializadores da biblioteca nem dispensar a inspeção do manifest final. Teste negativo adicional exige falhar se essas proteções forem enfraquecidas. O verificador continua recusando serviços e componentes extras. Isso não altera o APK ou seus fluxos.
 
 Conferir após build: testes, Lint das duas variantes, APKs, R8, assinatura, hashes e ZIP. Registrar evidência em `RESULTADO_LANCAMENTO_1.1.0.md`. Sem aparelho conectado/KVM neste ambiente, não declarar smoke nativo ou compatibilidade universal. SUS/TalkBack/matriz física e custódia externa da chave não foram inferidos a partir de automação.
+
+## Rodada 2 — verificador e artefatos
+
+Médio — a alternativa `activity` no regex reconhecia o prefixo de `activity-alias`. Um teste negativo reproduziu a aceitação de alias no lugar de Activity obrigatória. Corrigir a ordem das alternativas para identificar o tipo completo e conservar a lista exata. O APK real tem as duas Activities esperadas, não aliases; seus bytes não precisam mudar. Revalidar os testes e o APK com o verificador corrigido.
+
+Correção concluída; seis testes do gate e seis contratos passaram. O gate atualizado validou novamente a release real; nenhum bloqueante/alto restante. **APROVADO para entrega ao teste final**, com evidência detalhada em `RESULTADO_LANCAMENTO_1.1.0.md`. Não equivale a autorização/publicação nem substitui o smoke da release exata. Backup privado entregue com autorização explícita, verificado por readback e recuperação; falta o proprietário concluir a guarda externa da senha.

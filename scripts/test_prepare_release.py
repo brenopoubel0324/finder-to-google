@@ -51,6 +51,10 @@ class ReleaseGateTest(unittest.TestCase):
             with self.subTest(tree=tree), self.assertRaises(ValueError):
                 self.verify(tree=tree)
 
+    def test_rejects_alias_in_place_of_required_activity(self):
+        with self.assertRaises(ValueError):
+            self.verify(tree=self.tree.replace('E: activity', 'E: activity-alias', 1))
+
 
 if __name__ == "__main__":
     unittest.main()
