@@ -14,4 +14,6 @@ Validação inicial: seis contratos estruturais e quatro testes do verificador a
 
 ## Conferência e pendências
 
+Achado médio na aplicação do verificador ao APK real: a primeira regra rejeitava todos os providers/receivers, embora AndroidX acrescente InitializationProvider e ProfileInstallReceiver. Corrigida com lista exata de nomes/tipos, authorities, exported e permissão DUMP do receptor. Não remover inicializadores da biblioteca nem dispensar a inspeção do manifest final. Teste negativo adicional exige falhar se essas proteções forem enfraquecidas. O verificador continua recusando serviços e componentes extras. Isso não altera o APK ou seus fluxos.
+
 Conferir após build: testes, Lint das duas variantes, APKs, R8, assinatura, hashes e ZIP. Registrar evidência em `RESULTADO_LANCAMENTO_1.1.0.md`. Sem aparelho conectado/KVM neste ambiente, não declarar smoke nativo ou compatibilidade universal. SUS/TalkBack/matriz física e custódia externa da chave não foram inferidos a partir de automação.

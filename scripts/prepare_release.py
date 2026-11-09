@@ -20,6 +20,46 @@ def run(*args):
     return subprocess.run(args, check=True, capture_output=True, text=True).stdout
 
 
+def check_components(tree):
+    expected = {
+        ("activity", PACKAGE + ".ui.SettingsActivity"): {"exported": "true"},
+        ("activity", PACKAGE + ".ui.LinkRouterActivity"): {"exported": "true"},
+        ("provider", "androidx.startup.InitializationProvider"): {
+            "exported": "false", "authorities": PACKAGE + ".androidx-startup"},
+        ("receiver", "androidx.profileinstaller.ProfileInstallReceiver"): {
+            "exported": "true", "permission": "android.permission.DUMP"},
+    }
+    seen = set()
+    current = None
+    attributes = {}
+
+    def finish():
+        if current is None:
+            return
+        kind, _ = current
+        key = (kind, attributes.get("name"))
+        if key in seen or key not in expected or any(attributes.get(k) != v for k, v in expected[key].items()):
+            raise ValueError("Componente ou proteção inesperados no APK")
+        seen.add(key)
+
+    for line in tree.splitlines():
+        indent = len(line) - len(line.lstrip())
+        if current is not None and indent <= current[1] and line.strip():
+            finish()
+            current = None
+        match = re.match(r"\s*E: (activity|service|receiver|provider|activity-alias)\b", line)
+        if match:
+            current = (match.group(1), indent)
+            attributes = {}
+        elif current is not None and indent == current[1] + 2:
+            attribute = re.search(r":(\w+)\([^)]*\)=(?:\"([^\"]*)\"|(\S+))", line)
+            if attribute:
+                attributes[attribute.group(1)] = attribute.group(2) if attribute.group(2) is not None else attribute.group(3)
+    finish()
+    if seen != set(expected):
+        raise ValueError("Lista de componentes diferente da release esperada")
+
+
 def check_metadata(badging, tree, signature, version, code):
     """Falha fechada para variante/versão/chave/componentes incorretos."""
     required = f"package: name='{PACKAGE}' versionCode='{code}' versionName='{version}'"
@@ -32,8 +72,7 @@ def check_metadata(badging, tree, signature, version, code):
     permissions = re.findall(r"^uses-permission[^:]*: name='([^']+)'", badging, re.M)
     if set(permissions) - {PACKAGE + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"}:
         raise ValueError("Permissão inesperada no APK")
-    if re.search(r"E: (service|receiver|provider|activity-alias)\b", tree) or len(re.findall(r"E: activity\b", tree)) != 2:
-        raise ValueError("Componentes inesperados no APK")
+    check_components(tree)
     if not re.search(r":allowBackup\([^)]*\)=false\b", tree):
         raise ValueError("Backup não está explicitamente desabilitado")
     certificates = re.findall(r"^Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)$", signature, re.M)
