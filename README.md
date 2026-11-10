@@ -15,3 +15,8 @@ Arquivos na pasta `1.1.0/`: APK release, SHA-256, ZIP e manifesto. Smoke da rele
 ## 1.1.1-rc.1 — candidato de revisão de trabalho
 
 APKs debug/release, checksums, ZIPs com roteiro e manifesto em `1.1.1-rc.1/`. Mesmas chaves das variantes anteriores. Redução de consultas/Views demonstrada no harness; comparação física e bateria no Samsung pendentes. Não substituir os arquivos antigos.
+
+
+## 1.1.1-rc.2 — migração de configurações
+
+APKs debug/release code 9, ZIPs com guia e hashes em `1.1.1-rc.2/`. Primeiro atualizar debug e exportar/verificar JSON, depois reinstalar release e importar. Não desinstalar antes do backup verificado. Arquivos não incluem chave ou configurações reais do usuário.

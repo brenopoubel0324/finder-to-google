@@ -1,0 +1,37 @@
+{
+  "artifacts": [
+    {
+      "apk": "Finder-to-Google-1.1.1-rc.2-debug.apk",
+      "version": "1.1.1-rc.2-debug",
+      "version_code": 9,
+      "variant": "debug",
+      "bytes": 15332477,
+      "sha256": "7a9577e8e12264bd89f845ca21862d8d9e5c6dac2865f7dd0f5a5bf9ddd4b382",
+      "certificate_sha256": "dabc6d27ddf900e0f8a137e17aa38ab4e1d4f9ef8500d11186d3c97c77d35823",
+      "source_commit": "c487427957d6c347fd9970c9a7b0dba8d67dd2ea",
+      "backup_schema": 1,
+      "physical_migration": "pending_user_device",
+      "zip": "Finder-to-Google-1.1.1-rc.2-debug.zip",
+      "zip_sha256": "e807bb1bb3cd45c01096549db1a857bd372635d7e03f11d85efb02e3601fe7f7"
+    },
+    {
+      "apk": "Finder-to-Google-1.1.1-rc.2-release.apk",
+      "version": "1.1.1-rc.2",
+      "version_code": 9,
+      "variant": "release",
+      "bytes": 2525267,
+      "sha256": "0d83d9aa160164b6190ce502606a640ea5cf3c68f1e9fd9d6529a11a05aeece3",
+      "certificate_sha256": "a99bd676fb3a8603605fd94e2fd0cbc7cf36f9d313623931635fa4e1780741c8",
+      "source_commit": "c487427957d6c347fd9970c9a7b0dba8d67dd2ea",
+      "backup_schema": 1,
+      "physical_migration": "pending_user_device",
+      "zip": "Finder-to-Google-1.1.1-rc.2-release.zip",
+      "zip_sha256": "c500b289337abc8c4d1f5348c39095cf4102033eb524c27e8f362a57b65b3faa"
+    }
+  ],
+  "unit_tests": 124,
+  "structural_tests": 6,
+  "release_gate_tests": 6,
+  "lint_errors": 0,
+  "lint_warnings_per_variant": 23
+}
