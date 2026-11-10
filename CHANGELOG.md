@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.1.1-rc.2 — migração por arquivo, code 9
+
+- Exportar/importar navegador, compatibilidade, opção de diagnóstico e padrões ativos/desativados pelo seletor de arquivos Android.
+- Exportação verificada por leitura de volta; importação limitada/validada e confirmada por resumo. Sem novas permissões, serviço ou envio automático à nuvem.
+- Recuperação de importação confirmada interrompida por journal privado. Lista vazia e padrões desativados são preservados.
+- Não transporta autorização de navegador padrão, consultas, URL, registro de diagnóstico, sessão de calibração ou chave de assinatura.
+
 ## 1.1.1-rc.1 — candidato de otimização, code 8
 
 - Estado do sistema em cache apenas para apresentação: atualização por retomada, eventos do pacote selecionado e ações que dependem de requisitos.

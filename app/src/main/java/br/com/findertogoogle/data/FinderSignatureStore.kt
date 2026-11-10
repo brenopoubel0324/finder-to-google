@@ -13,6 +13,7 @@ class FinderSignatureStore(context: Context) {
     private val prefs = context.getSharedPreferences("finder_rules", Context.MODE_PRIVATE)
 
     init {
+        SettingsRestore.recover(context)
         synchronized(lock) {
             if (!prefs.contains("registered")) prefs.edit()
                 .putStringSet("registered", GoogleSearchUrlParser.defaultFinderClients)

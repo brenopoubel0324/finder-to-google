@@ -1,6 +1,6 @@
 # Privacidade — Finder to Google
 
-Atualizada em 9 de novembro de 2026. Aplica-se à versão 1.1.0 distribuída no [repositório oficial](https://github.com/brenopoubel0324/finder-to-google).
+Atualizada em 10 de novembro de 2026. Aplica-se ao aplicativo a partir da versão 1.1.0, incluindo exportação/importação na 1.1.1-rc.2, distribuído no [repositório oficial](https://github.com/brenopoubel0324/finder-to-google).
 
 O aplicativo recebe links quando é escolhido como navegador padrão do Android. Analisa o link no dispositivo e abre a pesquisa reconhecida no Google App ou encaminha o endereço inteiro ao navegador escolhido. Não tem servidor próprio, conta, anúncios, analytics, telemetria ou permissão INTERNET.
 
@@ -19,6 +19,8 @@ Para pesquisar, o aplicativo entrega o termo ao Google App. Para abrir uma pági
 Nada é enviado automaticamente ao desenvolvedor. Se você abrir uma issue pública no GitHub ou compartilhar um diagnóstico manualmente, o conteúdo será tratado pelo serviço usado. Não publique pesquisas, URLs particulares, senhas ou capturas com dados pessoais.
 
 ## Exclusão e controle
+
+A partir da 1.1.1-rc.2, você pode exportar/importar configurações por um JSON no destino escolhido no seletor Android. Inclui navegador, opções e padrões; não inclui consultas, URLs ou o último diagnóstico. Não há upload automático. O arquivo permanece sob seu controle e pode sincronizar pelo provedor de documentos escolhido. Importar exige confirmação e apaga o último diagnóstico local. Um journal privado de configurações validadas permite concluir uma restauração confirmada interrompida e é removido ao concluir. Apague separadamente as cópias exportadas quando desejar; elas não são excluídas pela desinstalação do app.
 
 É possível apagar o diagnóstico, desativar compatibilidade, remover padrões e trocar o navegador nas configurações do app. Limpar os dados ou desinstalar remove suas preferências locais; backup e transferência desses dados estão explicitamente excluídos pelo aplicativo. Cópias que você compartilhar ou colocar na área de transferência precisam ser removidas separadamente.
 

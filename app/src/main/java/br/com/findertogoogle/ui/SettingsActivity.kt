@@ -32,6 +32,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
     private lateinit var role: BrowserRoleHelper
     private lateinit var signatures: FinderSignatureStore
     private lateinit var pages: SettingsPages
+    private lateinit var transfer: SettingsTransferUi
     private var page = SettingsPage.HOME
     private var step = SetupStep.BROWSER
     private var answer = FinderTestAnswer.NONE
@@ -77,6 +78,11 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         role = BrowserRoleHelper(this)
         refreshSystemState()
         pages = SettingsPages(this, findViewById<ViewGroup>(R.id.page_content), this)
+        transfer = SettingsTransferUi(this) {
+            answer = FinderTestAnswer.NONE
+            refreshSystemState()
+            refresh()
+        }
         savedInstanceState?.let { state ->
             page = state.getString("ui.page").enumOrNull<SettingsPage>() ?: SettingsPage.HOME
             step = state.getString("ui.step").enumOrNull<SetupStep>() ?: SetupStep.BROWSER
@@ -273,6 +279,8 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
     override fun clearDiagnostic() { prefs.clearDiagnostic(); refresh() }
     override fun toggleSupport() { supportExpanded = !supportExpanded; refresh() }
     override fun toggleDiagnosticDetails() { diagnosticExpanded = !diagnosticExpanded; refresh() }
+    override fun exportSettings() { transfer.export() }
+    override fun importSettings() { transfer.import() }
     private fun toast(message: Int) { Toast.makeText(this, message, Toast.LENGTH_LONG).show() }
     private inline fun <reified T : Enum<T>> String?.enumOrNull(): T? = this?.let { try { enumValueOf<T>(it) } catch (_: IllegalArgumentException) { null } }
 }

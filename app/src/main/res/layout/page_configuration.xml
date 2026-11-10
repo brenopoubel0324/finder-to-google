@@ -17,6 +17,10 @@
     </LinearLayout>
   </com.google.android.material.card.MaterialCardView>
   <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/configure_guide" android:text="@string/configure" />
+  <TextView style="@style/UiTitle" android:text="@string/backup_title" />
+  <TextView style="@style/UiBody" android:text="@string/backup_description" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/export_settings" android:text="@string/backup_export" />
+  <com.google.android.material.button.MaterialButton style="@style/UiSecondary" android:id="@+id/import_settings" android:text="@string/backup_import" />
   <com.google.android.material.button.MaterialButton style="@style/UiTextButton" android:id="@+id/restore" android:text="@string/restore" />
   <TextView style="@style/UiBody" android:text="@string/restore_message" />
 </LinearLayout>

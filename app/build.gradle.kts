@@ -17,8 +17,8 @@ android {
         applicationId = "br.com.findertogoogle"
         minSdk = 29
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.1.1-rc.1"
+        versionCode = 9
+        versionName = "1.1.1-rc.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }

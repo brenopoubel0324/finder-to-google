@@ -28,6 +28,8 @@ interface SettingsActions {
     fun clearDiagnostic()
     fun toggleSupport()
     fun toggleDiagnosticDetails()
+    fun exportSettings()
+    fun importSettings()
 }
 
 /** Renderização sem acesso a Intent, URI ou escrita de preferências. */
@@ -71,6 +73,8 @@ class SettingsPages(private val activity: AppCompatActivity, private val host: V
                 root.click(R.id.manage_signatures) { actions.openPage(SettingsPage.PATTERNS) }
                 root.click(R.id.configure_guide) { actions.openPage(SettingsPage.SETUP) }
                 root.click(R.id.restore, actions::openDefaultApps)
+                root.click(R.id.export_settings, actions::exportSettings)
+                root.click(R.id.import_settings, actions::importSettings)
             }
             SettingsPage.HELP -> {
                 root.click(R.id.finder_problem, actions::finderProblem)

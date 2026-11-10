@@ -10,6 +10,7 @@ interface BrowserSelection {
 }
 
 class AppPreferences(context: Context) : BrowserSelection {
+    init { SettingsRestore.recover(context) }
     private val selfPackage = context.packageName
     private val prefs = context.getSharedPreferences("router_settings", Context.MODE_PRIVATE)
     private fun string(key: String): String? = try { prefs.getString(key, null) } catch (_: ClassCastException) { null }

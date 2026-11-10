@@ -1,5 +1,7 @@
 # Instalar o APK de lançamento
 
+**Para migrar sem recadastrar configurações:** atualize primeiro o debug para 1.1.1-rc.2/code 9, exporte e verifique o JSON em Configurações → Backup e migração. Só depois reinstale e importe na release correspondente. Siga [o roteiro de migração](MIGRACAO_DEBUG_RELEASE.md). As instruções manuais abaixo continuam sendo uma alternativa para versões antigas sem exportação.
+
 Use o arquivo **Finder-to-Google-1.1.0-release.apk** disponibilizado pelo proprietário na release do [repositório oficial](https://github.com/brenopoubel0324/finder-to-google/releases). APKs do GitHub Actions são debug e não substituem o instalador release. Uma release em rascunho ainda está em validação; não é um lançamento público aprovado.
 
 ## Antes de instalar

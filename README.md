@@ -1,5 +1,7 @@
 # Finder to Google
 
+**Migração sem recadastro manual:** a **1.1.1-rc.2/code 9** acrescenta Configurações → Backup e migração. Primeiro atualize seu debug e exporte/verifique o JSON; depois reinstale a release e importe com confirmação. [Passo a passo](docs/MIGRACAO_DEBUG_RELEASE.md). Autorizações do Android e último diagnóstico não fazem parte do backup.
+
 **Candidato de otimização 1.1.1-rc.1/code 8:** cache somente de apresentação, consultas restritas ao navegador escolhido e Views preservadas quando os dados não mudam. Encaminhamento continua verificando o destino ao vivo. [Revisão e evidências](docs/REVISAO_CONSUMO.md) · [Comparação no mesmo Samsung](docs/COMPARACAO_NO_APARELHO.md). Redução de trabalho automatizada não significa economia de bateria medida. A release 1.1.0 preparada abaixo foi preservada.
 
 [Repositório no GitHub](https://github.com/brenopoubel0324/finder-to-google) · [APKs e relatórios da 1.1.0-rc.5](https://github.com/brenopoubel0324/finder-to-google/releases/tag/v1.1.0-rc.5)
