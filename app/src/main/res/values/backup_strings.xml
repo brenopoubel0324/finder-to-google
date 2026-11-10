@@ -8,7 +8,7 @@
     <string name="backup_failed">Não foi possível ler, salvar ou verificar o arquivo. Nada será importado sem confirmação. Não desinstale antes de verificar seu backup.</string>
     <string name="backup_exported">Backup salvo e verificado. Guarde este arquivo para importar na release.</string>
     <string name="backup_import_title">Backup válido: conferir configurações</string>
-    <string name="backup_preview">Navegador: %1$s\nCompatibilidade: %2$s\nDiagnóstico local: %3$s\nPadrões: %4$d (%5$d desativados)\n\nImportar substitui suas configurações e encerra a calibração em curso. O último diagnóstico será apagado; ele não faz parte do backup. Nenhum aplicativo será aberto automaticamente. Se o navegador salvo estiver ausente, você poderá escolher outro. A autorização de navegador padrão precisa ser concedida no Android após a reinstalação.\n\nPara apenas verificar o backup, toque em Cancelar.</string>
+    <string name="backup_preview">Navegador: %1$s\nCompatibilidade: %2$s\nDiagnóstico local: %3$s\nTotal de padrões: %4$d\nPadrões desativados: %5$d\n\nImportar substitui suas configurações e encerra a calibração em curso. O último diagnóstico será apagado; ele não faz parte do backup. Nenhum aplicativo será aberto automaticamente. Se o navegador salvo estiver ausente, você poderá escolher outro. A autorização de navegador padrão precisa ser concedida no Android após a reinstalação.\n\nPara apenas verificar o backup, toque em Cancelar.</string>
     <string name="backup_replace">Importar</string>
     <string name="backup_no_browser">Não escolhido</string>
     <string name="backup_on">Ativado</string>
