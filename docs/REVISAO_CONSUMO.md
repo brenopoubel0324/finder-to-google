@@ -51,3 +51,22 @@ Evidências brutas: [antes](evidencias/consumo-antes.json) e [depois](evidencias
 Revisão em duas passagens: nenhum bloqueante/alto identificado. Correção média durante validação: registro NOT_EXPORTED exigia permissão interna em API 29 no harness; a versão final observa os eventos de sistema protegidos com tratamento de negação. Não foi acrescentado serviço para o cenário de encerramento. [Roteiro e coletor manual](COMPARACAO_NO_APARELHO.md) separam recuperação, CPU/IPC e energia.
 
 Limites locais concretos: `/dev/kvm` não está disponível; a tentativa `adb devices -l` falhou ao criar `/home/agent/.android` em filesystem somente leitura. Não há acesso ao S25 neste ambiente. Alterar permissões do host não conectaria o aparelho do usuário; nenhuma comparação física ou de energia foi declarada. O coletor pode ser executado no computador conectado ao Samsung, sem mudar o ambiente do app.
+
+## Candidato para a comparação física
+
+**1.1.1-rc.1/code 8**, compilado do commit `51a3005d5de5415dfdd83699371292ed80f96269`. Builds debug/instrumentação, release com R8 e Lint das duas variantes aprovados. Lint mantém zero erros e 21 avisos avaliados em cada variante. A rodada final incremental no commit de compilação passou. Sem nova execução de instrumentação em Android nativo. Certificados debug/definitivo preservados, metadata/manifest compilado conferidos, ZIPs de lista explícita com integridade e bytes do APK verificados.
+
+| Variante | Bytes | SHA-256 |
+|---|---:|---|
+| Debug | 14.098.497 | `c1f237c2fa8368e3e22ad9e9a11be94b8f23dc3cd5a6b7a6fdfa2bd398f008d4` |
+| Release | 2.506.867 | `22ad9f0cb6038f2f3ab1dde5b578821f62f67d897ce70ebe5c1a5defecc8ece3` |
+
+- [APK debug, atualiza debug](https://github.com/brenopoubel0324/finder-to-google/raw/0caa7791c6f241b41f326c16523c869019643911/1.1.1-rc.1/Finder-to-Google-1.1.1-rc.1-debug.apk)
+- [APK release, atualiza release](https://github.com/brenopoubel0324/finder-to-google/raw/0caa7791c6f241b41f326c16523c869019643911/1.1.1-rc.1/Finder-to-Google-1.1.1-rc.1-release.apk)
+- [Manifesto, certificados e hashes](https://github.com/brenopoubel0324/finder-to-google/raw/0caa7791c6f241b41f326c16523c869019643911/1.1.1-rc.1/artifact-manifest.json)
+
+Oito arquivos na branch downloads conferidos por blob Git/tamanho; os dois APKs foram também baixados pelo link público e tiveram SHA-256 comparado com a origem. Links fixados pelo commit. ZIPs correspondentes, checksums e manifesto estão na mesma pasta. Chaves/credenciais não integram os arquivos públicos. Mapping R8 e relatórios foram preservados separadamente para manutenção.
+
+A pré-release `v1.1.1-rc.1` fica em rascunho para testes, sem promover/substituir a 1.1.0. O endpoint de anexos nativos continua indisponível (HTTP 401 previamente observado); entrega por Git na branch downloads. Nenhum CI remoto foi usado como evidência desta revisão: commits `[skip ci]` preservam os controles de custo enquanto billing estiver bloqueado.
+
+**Veredito técnico: APROVADO como candidato para teste, sem bloqueante/alto identificado.** Ganho de trabalho comprovado apenas no harness. Funcionamento, recuperação e energia no mesmo Samsung continuam pendentes do roteiro físico; nenhum percentual de bateria foi alegado.
