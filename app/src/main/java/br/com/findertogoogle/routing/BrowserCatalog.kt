@@ -12,6 +12,7 @@ data class BrowserTarget(val component: ComponentName, val label: String)
 
 interface BrowserCatalog {
     fun installedBrowsers(): List<BrowserApp>
+    fun findBrowser(packageName: String): BrowserApp? = installedBrowsers().firstOrNull { it.packageName == packageName }
     fun resolve(packageName: String, uri: Uri, preferred: ComponentName? = null): BrowserTarget?
 }
 
@@ -54,6 +55,12 @@ class AndroidBrowserCatalog(private val context: Context) : BrowserCatalog {
         return generic("https").values.filter { it.component.packageName in httpPackages }
             .distinctBy { it.component.packageName }.map { BrowserApp(it.component.packageName, it.label) }
             .sortedWith(compareBy<BrowserApp> { it.label.lowercase() }.thenBy { it.packageName })
+    }
+
+    override fun findBrowser(packageName: String): BrowserApp? {
+        if (packageName == context.packageName || generic("http", packageName).isEmpty()) return null
+        val target = generic("https", packageName).values.firstOrNull() ?: return null
+        return BrowserApp(packageName, target.label)
     }
 
     override fun resolve(packageName: String, uri: Uri, preferred: ComponentName?): BrowserTarget? {

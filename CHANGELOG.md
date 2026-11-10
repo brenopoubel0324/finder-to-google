@@ -1,5 +1,13 @@
 # Histórico de versões
 
+## 1.1.1-rc.1 — candidato de otimização, code 8
+
+- Estado do sistema em cache apenas para apresentação: atualização por retomada, eventos do pacote selecionado e ações que dependem de requisitos.
+- Consulta do navegador selecionado restrita ao seu pacote; descoberta geral somente ao abrir/validar o seletor. Abertura de links mantém resolução real e recuperação, sem usar cache como autorização.
+- Página preservada quando dados não mudam; regras comparadas por conteúdo/estado, evitando ignorar alterações com a mesma contagem.
+- Sem novo serviço, timer de polling, alarme, wakelock, permissão ou receiver no manifest. Observador de pacotes existe apenas enquanto a Activity está iniciada.
+- Redução de consultas/recriações demonstrada em harness; comparação física/energia no mesmo Samsung ainda pendente.
+
 ## 1.1.0 — preparada para lançamento
 
 Publicação final pendente de validar o APK release exato. A rc.5 foi confirmada pelo usuário em pesquisa real no S25/Android 17 em 9 de novembro de 2026; não equivale ao teste de todos os fluxos ou desta nova compilação.

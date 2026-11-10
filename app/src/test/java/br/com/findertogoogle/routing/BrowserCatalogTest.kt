@@ -48,6 +48,10 @@ class BrowserCatalogTest {
         register("org.browser.private", exported = false)
         register("org.browser.httpsonly", schemes = listOf("https"))
         assertEquals(listOf("org.browser.real"), catalog.installedBrowsers().map { it.packageName })
+        assertNotNull(catalog.findBrowser("org.browser.real"))
+        assertNull(catalog.findBrowser("org.browser.disabled"))
+        assertNull(catalog.findBrowser("org.browser.httpsonly"))
+        assertNull(catalog.findBrowser(context.packageName))
     }
 
     @Test fun `atividades distintas por esquema continuam sendo um navegador e resolvem URI real`() {

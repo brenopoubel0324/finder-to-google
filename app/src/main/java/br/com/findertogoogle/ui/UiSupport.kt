@@ -30,7 +30,7 @@ fun AppCompatActivity.showBrowserPicker(forwarder: BrowserForwarder, onSelected:
     val browsers = forwarder.availableBrowsers()
     val dialog = MaterialAlertDialogBuilder(this).setTitle(R.string.choose_browser)
     if (browsers.isEmpty()) { dialog.setMessage(R.string.no_browsers).setPositiveButton(android.R.string.ok, null).show(); return }
-    val current = forwarder.selectedTarget()?.packageName
+    val current = forwarder.selectedPackage()
     val duplicateLabels = browsers.groupingBy { it.label }.eachCount().filterValues { it > 1 }.keys
     val adapter = object : ArrayAdapter<BrowserApp>(this, android.R.layout.select_dialog_singlechoice, browsers) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

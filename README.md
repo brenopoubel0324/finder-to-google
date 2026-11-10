@@ -1,5 +1,7 @@
 # Finder to Google
 
+**Candidato de otimização 1.1.1-rc.1/code 8:** cache somente de apresentação, consultas restritas ao navegador escolhido e Views preservadas quando os dados não mudam. Encaminhamento continua verificando o destino ao vivo. [Revisão e evidências](docs/REVISAO_CONSUMO.md) · [Comparação no mesmo Samsung](docs/COMPARACAO_NO_APARELHO.md). Redução de trabalho automatizada não significa economia de bateria medida. A release 1.1.0 preparada abaixo foi preservada.
+
 [Repositório no GitHub](https://github.com/brenopoubel0324/finder-to-google) · [APKs e relatórios da 1.1.0-rc.5](https://github.com/brenopoubel0324/finder-to-google/releases/tag/v1.1.0-rc.5)
 
 **Lançamento 1.1.0 em preparação (code 7).** Canal: APK no GitHub. Consulte [instalação e migração para release](docs/INSTALACAO_RELEASE.md), [privacidade](docs/PRIVACIDADE.md), [histórico](CHANGELOG.md) e [critérios de publicação](docs/LANCAMENTO_1.1.0.md). A rc.5 funcionou no S25/Android 17 segundo confirmação do usuário em 09/11/2026; o APK release exato ainda precisa do smoke antes da publicação final.

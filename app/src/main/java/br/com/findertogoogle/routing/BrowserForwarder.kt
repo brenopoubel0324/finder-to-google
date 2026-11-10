@@ -19,8 +19,10 @@ class BrowserForwarder(
     private val guard: ForwardingGuard = ForwardingGuard.process,
 ) {
     fun availableBrowsers(): List<BrowserApp> = catalog.installedBrowsers().filter { it.packageName != selfPackage }
-    fun selectedTarget(): BrowserApp? = availableBrowsers().firstOrNull { it.packageName == selection.selectedBrowserPackage }
+    fun selectedTarget(): BrowserApp? = selection.selectedBrowserPackage
+        ?.takeIf { it != selfPackage }?.let(catalog::findBrowser)
     fun hasSelection(): Boolean = selection.selectedBrowserPackage != null
+    fun selectedPackage(): String? = selection.selectedBrowserPackage
 
     fun select(app: BrowserApp): Boolean {
         if (availableBrowsers().none { it.packageName == app.packageName }) return false

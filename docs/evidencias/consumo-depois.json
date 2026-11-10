@@ -1,0 +1,35 @@
+{
+  "runtime": "Robolectric API 36",
+  "initial": {
+    "global_pm": 0,
+    "scoped_pm": 2,
+    "role_held": 1,
+    "role_available": 1,
+    "page_rebuilds": -1
+  },
+  "local_20": {
+    "global_pm": 0,
+    "scoped_pm": 0,
+    "role_held": 0,
+    "role_available": 0,
+    "page_rebuilds": 20
+  },
+  "resume_10": {
+    "global_pm": 0,
+    "scoped_pm": 20,
+    "role_held": 10,
+    "role_available": 10,
+    "page_rebuilds": 0
+  },
+  "stopped_1h": {
+    "global_pm": 0,
+    "scoped_pm": 0,
+    "role_held": 0,
+    "role_available": 0,
+    "page_rebuilds": 0
+  },
+  "app_version": "1.1.1-rc.1/code 8",
+  "baseline_source_commit": null,
+  "energy_measured": false,
+  "physical_device_measured": false
+}

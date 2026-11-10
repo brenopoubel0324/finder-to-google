@@ -1,8 +1,12 @@
 package br.com.findertogoogle.ui
 
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
@@ -12,9 +16,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import br.com.findertogoogle.R
 import br.com.findertogoogle.data.AppPreferences
 import br.com.findertogoogle.data.FinderSignatureStore
+import br.com.findertogoogle.data.FinderSignature
 import br.com.findertogoogle.routing.*
 import br.com.findertogoogle.system.BrowserRoleHelper
 import com.google.android.material.appbar.MaterialToolbar
@@ -36,9 +42,27 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
     private val history = mutableListOf<SettingsPage>()
     private val positions = mutableMapOf<SettingsPage, Int>()
     private var verificationContext: VerificationContext? = null
+    // Cache apenas desta tela. Ações e encaminhamentos mantêm validação ao vivo.
+    private var presentedPackage: String? = null
+    private var presentedBrowser: BrowserApp? = null
+    private var roleAvailable = false
+    private var roleHeld = false
+    private var firstResume = true
+    private var receiverRegistered = false
+    private var rendered: SettingsRenderKey? = null
+    private val packageChanges = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val changedPackage = intent?.data?.schemeSpecificPart ?: return
+            if (changedPackage != prefs.selectedBrowserPackage) return
+            savePosition()
+            refreshSystemState()
+            render()
+        }
+    }
     private val roleRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (role.isHeld() && page == SettingsPage.SETUP) step = SetupStep.FINDER
-        else if (!role.isHeld()) toast(R.string.role_canceled)
+        refreshSystemState()
+        if (roleHeld && page == SettingsPage.SETUP) step = SetupStep.FINDER
+        else if (!roleHeld) toast(R.string.role_canceled)
         render()
     }
 
@@ -51,6 +75,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         signatures = FinderSignatureStore(this)
         browser = BrowserForwarder(packageName, prefs, AndroidBrowserCatalog(this), ActivityStarter { startActivity(it) })
         role = BrowserRoleHelper(this)
+        refreshSystemState()
         pages = SettingsPages(this, findViewById<ViewGroup>(R.id.page_content), this)
         savedInstanceState?.let { state ->
             page = state.getString("ui.page").enumOrNull<SettingsPage>() ?: SettingsPage.HOME
@@ -79,7 +104,32 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         render()
     }
 
-    override fun onResume() { super.onResume(); if (::pages.isInitialized) render() }
+    override fun onStart() {
+        super.onStart()
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED); addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED); addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+        try {
+            // Apenas broadcasts protegidos do sistema; o evento invalida apresentação,
+            // nunca fornece autoridade ou dados para encaminhar um link.
+            ContextCompat.registerReceiver(this, packageChanges, filter, ContextCompat.RECEIVER_EXPORTED)
+            receiverRegistered = true
+        } catch (_: SecurityException) {
+            // Observação é opcional: retomada e ações continuam revalidando o sistema.
+            receiverRegistered = false
+        }
+    }
+    override fun onStop() {
+        if (receiverRegistered) { unregisterReceiver(packageChanges); receiverRegistered = false }
+        super.onStop()
+    }
+    override fun onResume() {
+        super.onResume()
+        if (firstResume) firstResume = false else refreshSystemState()
+        if (::pages.isInitialized) render()
+    }
     override fun onPause() { if (::pages.isInitialized) savePosition(); super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) {
         savePosition()
@@ -91,22 +141,33 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         positions.forEach { (p, y) -> outState.putInt("ui.scroll.${p.name}", y) }
     }
 
-    private fun snapshot(): SettingsSnapshot {
-        val rules = signatures.all()
-        return SettingsSnapshot(browser.selectedTarget()?.label, browser.hasSelection(), role.isAvailable(), role.isHeld(),
+    private fun refreshSystemState() {
+        presentedPackage = prefs.selectedBrowserPackage
+        presentedBrowser = browser.selectedTarget()
+        roleAvailable = role.isAvailable()
+        roleHeld = role.isHeld()
+    }
+    private fun snapshot(rules: List<FinderSignature> = signatures.all()): SettingsSnapshot {
+        if (presentedPackage != prefs.selectedBrowserPackage) refreshSystemState()
+        return SettingsSnapshot(presentedBrowser?.label, browser.hasSelection(), roleAvailable, roleHeld,
             prefs.experimentalFinderDetection, FinderCalibration.process.current()?.phrase, rules.count { it.enabled }, rules.size,
             prefs.diagnosticsEnabled, prefs.lastDiagnostic)
     }
     private fun savePosition() { positions[page] = findViewById<ScrollView>(R.id.page_scroll).scrollY }
     private fun render() {
         val host = findViewById<ViewGroup>(R.id.page_content)
-        val focus = PageFocus.capture(host)
-        val state = snapshot()
+        val rules = signatures.all()
+        val state = snapshot(rules)
         val context = VerificationContext(prefs.selectedBrowserPackage, state.browserLabel != null,
-            state.roleHeld, state.compatibility, signatures.enabledClients())
+            state.roleHeld, state.compatibility, rules.filter { it.enabled }.map { it.client }.toSet())
         if (verificationContext != null && verificationContext != context) answer = FinderTestAnswer.NONE
         verificationContext = context
         step = state.validStep(step)
+        val key = SettingsRenderKey(page, state, step, answer, supportExpanded, diagnosticExpanded,
+            calibrationContext, calibrationCanceled, rules)
+        if (rendered == key) return
+        val focus = PageFocus.capture(host)
+        rendered = key
         val body = pages.render(page, state, step, answer, supportExpanded, diagnosticExpanded, calibrationContext, calibrationCanceled)
         findViewById<MaterialToolbar>(R.id.settings_toolbar).apply {
             navigationIcon = if (page == SettingsPage.HOME) null else AppCompatResources.getDrawable(this@SettingsActivity, R.drawable.ic_back)
@@ -118,7 +179,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         PageFocus.restore(host, focus)
         val activePage = page
         findViewById<ScrollView>(R.id.page_scroll).post {
-            if (page == activePage) findViewById<ScrollView>(R.id.page_scroll).scrollTo(0, positions[activePage] ?: 0)
+            if (page == activePage && rendered === key) findViewById<ScrollView>(R.id.page_scroll).scrollTo(0, positions[activePage] ?: 0)
         }
     }
     private fun refresh() { savePosition(); render() }
@@ -141,6 +202,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         render()
     }
     override fun homePrimary() {
+        refreshSystemState()
         when (snapshot().homeAction) {
             HomeAction.SYSTEM_SETTINGS -> openDefaultApps()
             HomeAction.CONTINUE_CALIBRATION -> openPage(SettingsPage.CALIBRATION)
@@ -148,10 +210,12 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         }
     }
     override fun chooseBrowser() { showBrowserPicker(browser) {
-        if (page == SettingsPage.SETUP) step = if (role.isHeld()) SetupStep.FINDER else SetupStep.ANDROID
+        refreshSystemState()
+        if (page == SettingsPage.SETUP) step = if (roleHeld) SetupStep.FINDER else SetupStep.ANDROID
         refresh()
     } }
     override fun nextSetup() {
+        refreshSystemState()
         val current = snapshot(); step = current.validStep(step)
         when (step) {
             SetupStep.BROWSER -> if (current.browserLabel == null) chooseBrowser() else { step = if (current.roleHeld) SetupStep.FINDER else SetupStep.ANDROID; render() }
@@ -161,7 +225,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
     }
     override fun previousSetup() { step = if (step == SetupStep.FINDER) SetupStep.ANDROID else SetupStep.BROWSER; positions[SettingsPage.SETUP] = 0; render() }
     private fun requestRole() {
-        if (browser.selectedTarget() == null) { step = SetupStep.BROWSER; render(); return }
+        if (presentedBrowser == null) { step = SetupStep.BROWSER; render(); return }
         val intent = role.requestIntent()
         if (intent == null) { openDefaultApps(); return }
         try { roleRequest.launch(intent) } catch (_: ActivityNotFoundException) { toast(R.string.system_open_failed) }
@@ -170,6 +234,7 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
     override fun setCompatibility(enabled: Boolean) { prefs.experimentalFinderDetection = enabled; refresh() }
     override fun answerFinder(answer: FinderTestAnswer) { this.answer = answer; refresh() }
     override fun finderProblem() {
+        refreshSystemState()
         val state = snapshot()
         when {
             state.browserLabel == null || !state.roleHeld -> openPage(SettingsPage.SETUP)
@@ -178,7 +243,8 @@ class SettingsActivity : AppCompatActivity(), SettingsActions {
         }
     }
     override fun copyCalibrationTest() {
-        if (browser.selectedTarget() == null || !role.isHeld()) { toast(R.string.calibration_need_role); openPage(SettingsPage.SETUP); return }
+        refreshSystemState()
+        if (presentedBrowser == null || !roleHeld) { toast(R.string.calibration_need_role); openPage(SettingsPage.SETUP); return }
         val session = FinderCalibration.process.current() ?: FinderCalibration.process.begin()
         getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(getString(R.string.calibration_test_label), session.phrase))
         calibrationContext = true; calibrationCanceled = false

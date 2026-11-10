@@ -1,11 +1,17 @@
 package br.com.findertogoogle.ui
 
+import br.com.findertogoogle.data.FinderSignature
+
 enum class SettingsPage { HOME, CONFIGURATION, HELP, SETUP, CALIBRATION, PATTERNS }
 enum class SetupStep { BROWSER, ANDROID, FINDER }
 enum class FinderTestAnswer { NONE, CONFIRMED, NOT_TESTED }
 enum class HomeAction { CHOOSE_BROWSER, REPLACE_BROWSER, ACTIVATE, SYSTEM_SETTINGS, CONTINUE_CALIBRATION, TEST_FINDER }
 data class VerificationContext(val browserPackage: String?, val browserAvailable: Boolean,
     val roleHeld: Boolean, val compatibility: Boolean, val activeClients: Set<String>)
+
+internal data class SettingsRenderKey(val page: SettingsPage, val state: SettingsSnapshot,
+    val step: SetupStep, val answer: FinderTestAnswer, val support: Boolean, val details: Boolean,
+    val calibrationContext: Boolean, val calibrationCanceled: Boolean, val rules: List<FinderSignature>)
 
 data class SettingsSnapshot(
     val browserLabel: String?, val hasBrowserChoice: Boolean,
