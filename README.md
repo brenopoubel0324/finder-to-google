@@ -79,6 +79,8 @@ Ambientes com proxy podem exigir propriedades JVM de proxy/truststore para o pr�
 
 O workflow em `.github/workflows/android.yml` executa verificações estruturais, testes, Lint e build e publica APK/relatórios como artefatos. O projeto já está publicado no GitHub; consulte a [aba Actions](https://github.com/brenopoubel0324/finder-to-google/actions) para verificar o resultado de cada revisão. Compilar o APK de instrumentação não significa executar seus testes em um aparelho.
 
+O CI seleciona documentação, cotidiano ou completo por diff conservador; manual e tags v* são completos. APK debug é enviado somente em manual/tag bem-sucedido; os demais runs preservam relatórios úteis conforme risco/falha. A validação completa de CI inclui R8 **sem assinatura**, não distribuído e sem chave de produção. A entrega assinada mantém seu gate separado. Consulte [a operação do CI, evidências e limites de custo](docs/CI_CUSTO_ZERO.md).
+
 ## Instalar e configurar
 
 1. Extraia o ZIP da **atualização debug** e instale o APK por cima da sua versão debug, sem desinstalar. O release tem certificado definitivo diferente: atualiza release, mas migrar do debug exige reinstalar e configurar novamente. Não há desinstalação automática.

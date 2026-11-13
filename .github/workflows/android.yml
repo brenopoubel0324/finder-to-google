@@ -1,40 +1,88 @@
 name: Android
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name != 'pull_request' && github.run_id || '' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Selecionar validação pelo diff
+        id: select
+        run: python3 scripts/ci_select.py
+      - name: Verificar contratos e seletor
+        run: |
+          python3 scripts/check_project.py
+          python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Validar perfil selecionado
+        env:
+          PROFILE: ${{ steps.select.outputs.mode }}
+        run: |
+          case "$PROFILE" in
+            docs|daily|complete) ;;
+            *) echo 'Perfil inválido; validação interrompida.' >&2; exit 1 ;;
+          esac
       - uses: actions/setup-java@v4
+        if: steps.select.outputs.mode != 'docs'
         with:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        if: steps.select.outputs.mode != 'docs'
         with:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - name: Instalar SDK Android 16
+        if: steps.select.outputs.mode != 'docs'
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Verificar contratos estruturais
+        if: steps.select.outputs.mode != 'docs'
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      - name: Validação cotidiana
+        if: steps.select.outputs.mode == 'daily'
+        run: ./gradlew testDebugUnitTest lintDebug assembleDebug --stacktrace
+      - name: Validação completa sem chave de produção
+        if: steps.select.outputs.mode == 'complete'
         run: |
-          python3 scripts/check_project.py
-          python3 -m unittest discover -s scripts -p 'test_*.py'
-      - name: Testar, verificar e compilar
-        run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest --stacktrace
-      - uses: actions/upload-artifact@v4
-        if: always()
+          unset FINDER_RELEASE_KEYSTORE FINDER_RELEASE_KEY_ALIAS FINDER_RELEASE_STORE_PASSWORD FINDER_RELEASE_KEY_PASSWORD
+          ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest lintRelease assembleRelease -x :app:verifyReleaseSigning --stacktrace
+          python3 scripts/ci_inspect_release.py
+      - name: Conferir candidato debug
+        if: ${{ success() && steps.select.outputs.mode == 'complete' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')) }}
+        run: test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Relatórios de falha ou validação completa
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.select.outcome == 'success' && (failure() || (steps.select.outputs.mode == 'complete' && github.event_name != 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
+        with:
+          name: finder-to-google-relatorios
+          retention-days: 7
+          path: |
+            app/build/reports/
+            app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: warn
+      - name: Candidato debug em execução manual ou tag
+        uses: actions/upload-artifact@v4
+        if: ${{ success() && steps.select.outputs.mode == 'complete' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')) }}
         with:
           name: finder-to-google-debug-e-relatorios
           retention-days: 14
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/reports/
-          if-no-files-found: warn
+            app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error

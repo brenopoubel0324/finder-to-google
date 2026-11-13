@@ -60,8 +60,8 @@ def check_components(tree):
         raise ValueError("Lista de componentes diferente da release esperada")
 
 
-def check_metadata(badging, tree, signature, version, code):
-    """Falha fechada para variante/versão/chave/componentes incorretos."""
+def check_manifest_metadata(badging, tree, version, code):
+    """Contrato do APK compilado, sem afirmar validação de assinatura."""
     required = f"package: name='{PACKAGE}' versionCode='{code}' versionName='{version}'"
     if not badging.startswith(required + " "):
         raise ValueError("Pacote ou versão inesperados")
@@ -75,6 +75,11 @@ def check_metadata(badging, tree, signature, version, code):
     check_components(tree)
     if not re.search(r":allowBackup\([^)]*\)=false\b", tree):
         raise ValueError("Backup não está explicitamente desabilitado")
+
+
+def check_metadata(badging, tree, signature, version, code):
+    """Gate de distribuição: certificado definitivo continua obrigatório."""
+    check_manifest_metadata(badging, tree, version, code)
     certificates = re.findall(r"^Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)$", signature, re.M)
     if [c.lower() for c in certificates] != [CERTIFICATE]:
         raise ValueError("Certificado diferente da chave definitiva")

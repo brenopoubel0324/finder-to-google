@@ -1,4 +1,54 @@
-# CI e APKs — auditoria de 2026-11-06
+# CI e APKs — operação atualizada em 13/11/2026
+
+O nome histórico deste arquivo não representa garantia de fatura zero. A revisão aplica a skill ci-eficiente ao Finder to Google; não altera orçamento, plano, permissões de compartilhamento, segredos, APKs ou assinatura de produção.
+
+## Perfis e ponto de validação completa
+
+O workflow **Android**, job/check **build**, continua sendo a entrada estável. Não há filtro de caminhos que deixe o check de um PR pendente. A decisão ocorre dentro do job e fica registrada no resumo da execução.
+
+| Perfil | Quando | Execução |
+|---|---|---|
+| Documentação (`docs`) | Somente README/CHANGELOG/LICENSE e Markdown em docs | Contratos estruturais + testes Python; sem JDK/SDK/Gradle/uploads de rotina |
+| Cotidiano (`daily`) | Lista explícita de apresentação, layouts/cores/textos/desenhos e testes unitários | Contratos/Python + testDebugUnitTest, lintDebug, assembleDebug |
+| Completo de CI (`complete`) | Outros caminhos, risco, base indisponível, diff vazio/desconhecido, tags v* e execução manual | Cotidiano + assembleDebugAndroidTest, lintRelease, assembleRelease/R8 sem chave e inspeção do APK compilado |
+
+Dados/routing/system, SettingsActivity/SettingsTransferUi e outras áreas não listadas como apresentação, manifests/permissões, res/xml, assets/JSON, build/dependências/toolchain, ProGuard, nativo, scripts, instrumentação, release e o próprio CI promovem ao completo. Extensão Markdown dentro de assets não é documentação. JSON em docs também é conservadoramente completo. O gate de perfil rejeita saída ausente/inválida do seletor; falha, cancelamento, timeout ou inspeção inválida não viram sucesso.
+
+O completo de CI é **validação de compilação/otimização sem chave**, não uma release distribuível. A etapa remove as quatro variáveis FINDER_RELEASE_* e exclui explicitamente apenas verifyReleaseSigning nessa execução sem credenciais. O build.gradle não foi alterado. Com configuração de assinatura incompleta, o AGP prepara APK unsigned. O inspetor recusa container assinado e confere pacote/versão/SDKs, depuração, permissões, componentes e backup no manifest compilado; o relatório diz signature_verified=false e production_release=false. O APK unsigned **não é enviado nos artefatos**.
+
+**Antes de entregar uma release**, continua obrigatório compilar a variante com as quatro variáveis privadas, sem exclusão de tarefa, executar verifyReleaseSigning, apksigner e o gate do certificado definitivo em scripts/prepare_release.py, além do smoke do APK exato quando houver dispositivo. Os testes de autorização, persistência, recuperação e calibração permanecem na suíte de unidade; compile de instrumentação não executa esses testes no Android físico. Nenhuma chave foi movida ao GitHub para esta otimização.
+
+## Eventos, diff, concorrência e cache
+
+- Push em **main** valida integração; PR direcionado a main valida o checkout do merge; tags **v*** e workflow_dispatch sempre selecionam completo. Branches de trabalho usam PR/manual, evitando push + PR duplicados. Não existe nova publicação automática.
+- Push compara **event.before até github.sha**, incluindo todos os commits do push. PR compara o base.sha do evento com o merge efetivamente em HEAD. Git --no-renames trata rename como exclusão e inclusão, sem perder o caminho original. Saída NUL não quebra nomes com espaços/quebras de linha. Não há paginação/API limitada a 300 arquivos.
+- Checkout raso é mantido; busca somente o commit base quando necessário, com timeout. Base ausente/inacessível ou head divergente promove ao completo, nunca a documentação. Erro interno inesperado do seletor falha o job.
+- Somente **PR obsoleto** é cancelado por concorrência. Integração, tags e manuais usam grupo por run: um push só de docs não pode cancelar um completo de código em main, nem substituir um completo ainda pendente. O diff acumulado do PR conserva o risco ao cancelar um merge obsoleto.
+- Timeout de 30 minutos preservado. Cache Gradle existente reaproveitado; PR é explicitamente somente leitura. Não foi criado cache amplo do SDK. Token contents:read, checkout sem credencial persistida, sem pull_request_target e sem secrets de produção em código de PR.
+
+## Artefatos e distribuição
+
+Cotidiano/documentação bem-sucedidos não enviam APK/relatórios a cada push. Falhas e completos de push/PR enviam relatórios/mapping por sete dias. Manual/tag completo bem-sucedido envia um único pacote debug + relatórios/mapping por 14 dias, sem duplicar o upload de relatórios. A ausência do APK debug esperado falha a conferência; APK unsigned nunca integra os caminhos de upload. Artefatos históricos não foram apagados e conservam sua expiração original.
+
+O debug do runner tem certificado próprio e não substitui a atualização debug assinada localmente entregue ao usuário. As chaves definitivas/debug locais continuam fora do Git. A branch **downloads é órfã e não contém este workflow**: ela não é aprovada implicitamente pelo nome da pasta. Distribuição continua exigindo manifesto com commit-fonte, versão, certificado e SHA-256, evidência dos testes correspondentes, inspeção de assinatura/manifest, igualdade de bytes no ZIP e no download público, como nas entregas registradas em AUDITORIA_BACKUP.md. Binário ou JSON no diff do código-fonte não recebe dispensa de documentação. Não foi criado um novo caminho de publicação com menos verificações.
+
+## Evidência desta revisão e pendências
+
+- Base local/remota inicial: 44f2339, árvore limpa, sem AGENTS.md aplicável encontrado. Workflow completo, scripts, contratos e plano de UX/release consultados. Nenhum arquivo de app, versão, dependência ou chave foi alterado.
+- Reconsultados três runs recentes: último sucesso 42023619413; duas recusas 42219405906/42219460309 por billing em 06/11. Anotação de 42219460309 lida novamente em 13/11: "The job was not started because your account is locked due to a billing issue." É evidência desse run antigo, não prova nova sobre o estado financeiro atual. Nenhum novo run foi disparado como diagnóstico.
+- Proteção da branch main: consulta retornou **HTTP 403 Resource not accessible by integration**. Nome Android/build foi preservado; nenhuma proteção foi alterada nem declarada dispensável.
+- Verificações locais: 17 testes Python aprovados (seletor com commits Git reais/CLI, checkout raso, PR/merge, push com vários commits, rename/exclusão, base ausente, manual/tag, formatos inválidos e gates de artefato); seis contratos estruturais; parsing YAML; actionlint 1.7.12 com checksum conferido no release oficial; diff sem erros.
+- Gradle **dry-run** confirmou a cadeia R8/packageRelease sem verifyReleaseSigning/validateSigningRelease quando as variáveis privadas estão ausentes. Não compilou o app. O inspetor foi exercitado sobre fixture ZIP unsigned derivada de APK anterior e recusou o APK assinado original. Isso valida os contratos do inspetor, **não executa um novo R8 nem comprova o job em Actions**. Gate de produção preservado e testes de certificado errado continuam falhando como esperado.
+- O gate de produção refatorado também foi aplicado ao APK release 1.1.1-rc.2 já existente, com apksigner/aapt2: assinatura definitiva e manifest aprovados. Não houve novo APK ou alegação de compilação para esta revisão.
+- Não foram refeitos os testes Android, emuladores ou screenshots por esta alteração de orquestração. Os APKs 1.1.1-rc.2 e seus resultados anteriores permanecem intactos.
+
+Após confirmar a regularização do bloqueio financeiro sem habilitar gastos adicionais, executar **uma execução manual Android completa na revisão publicada** e verificar logs, inspeção unsigned, relatórios e debug. Não repetir em loop nem chamar os checks locais de CI remoto aprovado. Para entrega assinada, executar também o gate de produção descrito acima. Orçamentos/parada por limite e fatura pessoais não foram acessados ou modificados. Timeout/concorrência não são teto financeiro.
+
+Redução demonstrada na configuração: docs dispensam toda a cadeia Android, cotidiano dispensa instrumentação e uploads de rotina, branches com PR deixam de duplicar push/PR, e completo se concentra em riscos/entregas. O completo acrescenta cobertura R8 que não existia no antigo CI. **Minutos remotos e economia na fatura não foram medidos.** Reverter o commit desta revisão restaura o workflow anterior; não recupera artefatos já expirados e não modifica os APKs entregues.
+
+## Registro histórico — auditoria de 06/11/2026
+
+O texto abaixo preserva a evidência anterior e não descreve a configuração atual.
 
 O workflow Android continua executando em push, pull_request e workflow_dispatch,
 com os mesmos testes, lint, contratos estruturais e variantes. A concorrência
