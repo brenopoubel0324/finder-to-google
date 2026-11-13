@@ -21,6 +21,7 @@ O completo de CI é **validação de compilação/otimização sem chave**, não
 ## Eventos, diff, concorrência e cache
 
 - Push em **main** valida integração; PR direcionado a main valida o checkout do merge; tags **v*** e workflow_dispatch sempre selecionam completo. Branches de trabalho usam PR/manual, evitando push + PR duplicados. Não existe nova publicação automática.
+- Essas regras pertencem à revisão atual do workflow. Tags criadas sobre commits históricos usam o workflow daquele commit. Rascunhos/APKs existentes não foram retargetados; para validar a nova orquestração, executar o completo manual na revisão publicada em main, preservando o vínculo fonte/artefato das entregas antigas.
 - Push compara **event.before até github.sha**, incluindo todos os commits do push. PR compara o base.sha do evento com o merge efetivamente em HEAD. Git --no-renames trata rename como exclusão e inclusão, sem perder o caminho original. Saída NUL não quebra nomes com espaços/quebras de linha. Não há paginação/API limitada a 300 arquivos.
 - Checkout raso é mantido; busca somente o commit base quando necessário, com timeout. Base ausente/inacessível ou head divergente promove ao completo, nunca a documentação. Erro interno inesperado do seletor falha o job.
 - Somente **PR obsoleto** é cancelado por concorrência. Integração, tags e manuais usam grupo por run: um push só de docs não pode cancelar um completo de código em main, nem substituir um completo ainda pendente. O diff acumulado do PR conserva o risco ao cancelar um merge obsoleto.
